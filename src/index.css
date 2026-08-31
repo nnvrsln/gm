@@ -1,0 +1,664 @@
+@import "tailwindcss";
+
+/* Явно объявляем src источником классов. Автопоиск Tailwind делает то же
+   самое, но не подхватывает папку, созданную уже после старта dev-сервера:
+   классы из неё молча не генерируются, и страница выглядит без стилей до
+   перезапуска. С этой директивой новые файлы подхватываются сразу. */
+@source "./";
+
+/* ── Дизайн-токены проекта ─────────────────────────────────────────────────
+   В прежней версии этот конфиг передавался в Tailwind Play CDN и молча не
+   применялся. Здесь Tailwind собирается локально, поэтому токены рабочие. */
+@theme {
+  --color-pitch: #05080b;
+  --color-panel: #0a1119;
+  --color-panel2: #101923;
+  --color-stroke: rgba(190, 210, 230, 0.16);
+  --color-muted: #aeb6c3;
+  --color-blood: #e10922;
+  --color-blood2: #8f0613;
+
+  --shadow-red: 0 0 26px rgba(225, 9, 34, 0.34);
+  --shadow-panel: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 18px 50px rgba(0, 0, 0, 0.34);
+
+  /* Manrope здесь был объявлен, но @font-face для него не существовало —
+     весь текст сайта фактически рисовался системным Segoe UI. Onest подключён
+     ниже по-настоящему: кириллица родная, открытые формы читаются на 12px
+     по тёмному фону, и он не Inter, которым набрана половина интернета. */
+  --font-display: "Onest", "Segoe UI", Tahoma, sans-serif;
+  --font-badge: "Onest", "Segoe UI", Tahoma, sans-serif;
+  --font-body: "Onest", "Segoe UI", Tahoma, sans-serif;
+
+  --tracking-course: 0.18em;
+
+  /* Трекинг для Bebas — только целыми пикселями, никогда в em.
+     Шрифт хинтованный: дробный шаг копится по строке, каждая буква садится
+     на свою субпиксельную фазу и рисуется с разной толщиной. Замер чёткости
+     на 20px: 54.7% с целым шагом против 52.2% с 0.07em. */
+  --tracking-title: 1px; /* заголовки секций, 17–34px */
+  --tracking-display: 2px; /* H1 первого экрана, 48px */
+
+  /* Одна кривая на весь проект: быстрый старт, долгое торможение —
+     движение читается как объект с массой, а не как линейный сдвиг. */
+  --ease-mass: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* Резкий ease-out для отклика на нажатие: движение начинается сразу,
+     встроенных кривых для этого не хватает — они слишком вялые на старте. */
+  --ease-snap: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@font-face {
+  font-family: "Bebas Neue Cyrillic";
+  src: url("./assets/bebasneuecyrillic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Onest — вариативный, один файл на весь диапазон насыщенностей. */
+@font-face {
+  font-family: "Onest";
+  src: url("./assets/onest-cyrillic.woff2") format("woff2");
+  font-weight: 300 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Autograf — рукописный шрифт под автограф. Кириллицы в нём нет, поэтому
+   подпись набирается латинской транслитерацией. Лицензия в файле шрифта:
+   personal use only, для коммерческого использования нужна платная. */
+@font-face {
+  font-family: "Autograf";
+  src: url("./assets/autograf.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  body {
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at 78% 10%, rgba(255, 255, 255, 0.14), transparent 8rem),
+      radial-gradient(circle at 15% 32%, rgba(30, 91, 255, 0.18), transparent 8rem),
+      linear-gradient(180deg, #060a0e 0%, #030507 100%);
+    font-family: var(--font-body);
+    color: #fff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.55));
+    opacity: 0.72;
+    mix-blend-mode: screen;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font-family: var(--font-body);
+  }
+}
+
+@layer components {
+  /* ── Ритм секций ──────────────────────────────────────────────────────
+     Единый зазор между секциями: 32px снизу + 20px сверху = 52px. Величина
+     снята со стыка «герой → о курсе» — он задал тон странице, остальные
+     разъезжались (80, 92 и 155px на стыке с формой).
+
+     Асимметрия намеренная. Верхний отступ у секций с фотофоном определяет,
+     где начинается кадр и как ложится маска растворения, — его трогать
+     нельзя. Нижний свободен, поэтому вся разница вынесена вниз.
+
+     Перебивать класс утилитой Tailwind можно: утилиты лежат в слое выше
+     components и выигрывают при равной специфичности. Так сделан герой —
+     у него свой верх в 132px, это первый экран, а не рядовая секция. */
+  .section-rhythm {
+    padding-top: 20px;
+    padding-bottom: 32px;
+  }
+
+  .hero-bg {
+    background: #05080b;
+  }
+
+  .stadium-lights {
+    background-image: url("./assets/backgroundhero.webp");
+    background-position: 58% top;
+    background-repeat: no-repeat;
+    background-size: auto 85%;
+    -webkit-mask-image: linear-gradient(
+      180deg,
+      #000 0%,
+      #000 55%,
+      rgba(0, 0, 0, 0.85) 70%,
+      rgba(0, 0, 0, 0.5) 82%,
+      rgba(0, 0, 0, 0.15) 92%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      180deg,
+      #000 0%,
+      #000 55%,
+      rgba(0, 0, 0, 0.85) 70%,
+      rgba(0, 0, 0, 0.5) 82%,
+      rgba(0, 0, 0, 0.15) 92%,
+      transparent 100%
+    );
+  }
+
+  /* Автограф. Наклон у шрифта свой, добавляем совсем немного — росчерк на
+     фото никогда не лежит ровно по базовой линии макета. */
+  .signature {
+    font-family: "Autograf", "Segoe Script", cursive;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.82);
+    transform: rotate(-2deg);
+    transform-origin: left center;
+    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.55);
+  }
+
+  /* ── Кнопки первого экрана ────────────────────────────────────────────
+     Набраны тем же Bebas-капслоком, что и H1: типографика кнопок взята из
+     системы страницы, а не из дефолтного набора SaaS-компонентов. Радиус 6px
+     вместо мягких 14 — язык тактических схем, а не дашборда. */
+  .btn-hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px; /* палец: минимальная цель 44px */
+    padding: 15px 12px;
+    border-radius: 6px;
+    font-family: "Bebas Neue Cyrillic", "Bahnschrift", sans-serif;
+    text-transform: uppercase;
+    /* Кегль целым пикселем, без clamp: 16.2px, который clamp выдавал на
+       узких экранах, давал худшую чёткость из всех замеренных — 43.7%. */
+    font-size: 20px;
+    line-height: 1;
+    letter-spacing: var(--tracking-title);
+    white-space: nowrap;
+    /* Только transform — не all: остальное перерисовкой не занимаем. */
+    transition: transform 160ms var(--ease-snap);
+  }
+
+  .btn-hero:active {
+    transform: scale(0.97);
+  }
+
+  /* Световая кромка по верхней грани — кнопка читается объёмной без градиента.
+     Рисуется фоновым слоем, а не ::after с overflow:hidden: overflow, отличный
+     от visible, обнуляет min-width:auto, и кнопка сжимается уже своего текста,
+     обрезая подпись на узких экранах. */
+  .btn-hero-primary {
+    flex: 1.15;
+    color: #fff;
+    background:
+      linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent) top / 100% 1px no-repeat,
+      #1e5bff;
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.22),
+      0 0 0 1px #0b1c3d,
+      0 8px 20px rgba(30, 91, 255, 0.28);
+  }
+
+  /* Кнопка «разметка поля» — вариант 03 с макетной /buttons.html.
+     Зелёный газона, диагональные полосы от газонокосилки и белая линия
+     штрафной по низу. Всё градиентами: картинки нет, вес нулевой.
+
+     До неё примерялась подача 02 (кадр стадиона в заливке) — снята: на этой
+     секции фоном лежит тот же course-bg, и кнопка со снимком внутри читалась
+     вторым слоем той же фотографии, а не отдельным объектом. Вернуть — это
+     один класс, раскладка в /buttons.html.
+
+     Полосы под 115°, шаг 36px: по вертикали кнопки в 50px это чуть больше
+     одного полного шага, поэтому рисунок не успевает начать повторяться и не
+     выглядит текстурной плиткой. Прозрачность .07 — выше полосы спорят с
+     подписью, ниже пропадают на телефоне.
+
+     Вертикальный градиент держится в узком диапазоне (#21b365 → #17954f).
+     Первая версия шла с #1aa059 в #10653a: на кнопке в 50px это падение
+     светлоты на треть, и нижняя половина обесцвечивалась — кнопка выглядела
+     выцветающей книзу. Верх остаётся чуть светлее только ради объёма.
+
+     Линии штрафной по низу здесь нет: на макетной она читалась деталью, а на
+     живой странице — подчёркиванием под подписью, то есть браком вёрстки. */
+  .btn-hero-turf {
+    color: #fff;
+    gap: 10px;
+    background:
+      linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent) top / 100% 1px no-repeat,
+      repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.07) 0 18px, transparent 18px 36px),
+      linear-gradient(180deg, #21b365, #17954f);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.2),
+      0 0 0 1px #08321d,
+      0 8px 20px rgba(23, 149, 79, 0.34);
+  }
+
+  .btn-hero-secondary {
+    flex: 1;
+    color: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.03);
+    transition:
+      transform 160ms var(--ease-snap),
+      border-color 200ms ease,
+      background-color 200ms ease;
+  }
+
+  /* Тач-устройства выдают hover по тапу — отсюда media-запрос. */
+  @media (hover: hover) and (pointer: fine) {
+    .btn-hero-primary:hover {
+      background:
+        linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent) top / 100% 1px no-repeat,
+        #2a67ff;
+    }
+
+    .btn-hero-secondary:hover {
+      border-color: rgba(255, 255, 255, 0.38);
+      background: rgba(255, 255, 255, 0.07);
+    }
+  }
+
+  /* На узких экранах пара в 20px не помещается — уходим на 17px,
+     тоже целый, чтобы фаза сглаживания осталась одинаковой. */
+  @media (max-width: 399px) {
+    .btn-hero {
+      font-size: 17px;
+      padding-inline: 8px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .btn-hero {
+      transition: none;
+    }
+  }
+
+  /* ── Растворение краёв фотографий ─────────────────────────────────────
+     Линейная заливка чёрным даёт «якобы размытие»: снимок остаётся резким
+     и просто темнеет. Здесь каждый снимок кладётся двумя копиями — резкой
+     и размытой. Резкая гаснет раньше, размытая перехватывает и уходит уже
+     расфокусированной. Изображение теряет фокус, а потом исчезает, как
+     мазок мягким ластиком.
+     Нижний край маски размытого слоя собран из линейной подложки и двух
+     радиальных пятен: их объединение даёт неровную границу вместо ровной
+     горизонтали. scale на размытой копии прячет прозрачные поля, которые
+     blur затягивает внутрь от краёв картинки. */
+
+  /* Границы перехода — в пикселях, не в процентах от высоты кадра. Проценты
+     привязаны к пропорциям конкретного снимка: при замене фото на кадр другой
+     высоты зона перехода уезжает, и обе копии — резкая и размытая со scale —
+     проступают одновременно, из-за чего лицо начинает двоиться. В пикселях
+     стопы означают «раствориться между 315 и 440px от верха», независимо от
+     того, какой снимок подставлен. */
+  .photo-sharp-down {
+    -webkit-mask-image: linear-gradient(180deg, #000 0px, #000 270px, rgba(0, 0, 0, 0.4) 325px, transparent 385px);
+    mask-image: linear-gradient(180deg, #000 0px, #000 270px, rgba(0, 0, 0, 0.4) 325px, transparent 385px);
+  }
+
+  .photo-blur-down {
+    filter: blur(17px);
+    transform: scale(1.07);
+    -webkit-mask-image:
+      linear-gradient(180deg, transparent 245px, #000 300px, #000 340px, transparent 395px),
+      radial-gradient(150px 50px at 24% 330px, #000 45%, transparent 100%),
+      radial-gradient(135px 44px at 72% 352px, #000 45%, transparent 100%);
+    mask-image:
+      linear-gradient(180deg, transparent 245px, #000 300px, #000 340px, transparent 395px),
+      radial-gradient(150px 50px at 24% 330px, #000 45%, transparent 100%),
+      radial-gradient(135px 44px at 72% 352px, #000 45%, transparent 100%);
+    -webkit-mask-composite: source-over;
+    mask-composite: add;
+  }
+
+  /* Зеркальная пара для верхнего края: снимок проявляется из темноты
+     сначала расфокусированным и только потом наводится на резкость. */
+  .photo-blur-up {
+    filter: blur(17px);
+    /* translateZ выносит слой на GPU и растеризует размытие один раз.
+       Без него blur(17px) по большому снимку пересчитывается на каждой
+       перерисовке страницы — в том числе на каждом кадре анимации
+       аккордеона в программе, который идёт двумя секциями ниже. */
+    transform: scale(1.07) translateZ(0);
+    -webkit-mask-image:
+      linear-gradient(180deg, transparent 0%, #000 7%, #000 15%, transparent 30%),
+      radial-gradient(56% 13% at 30% 12%, #000 45%, transparent 100%),
+      radial-gradient(50% 11% at 76% 9%, #000 45%, transparent 100%);
+    mask-image:
+      linear-gradient(180deg, transparent 0%, #000 7%, #000 15%, transparent 30%),
+      radial-gradient(56% 13% at 30% 12%, #000 45%, transparent 100%),
+      radial-gradient(50% 11% at 76% 9%, #000 45%, transparent 100%);
+    -webkit-mask-composite: source-over;
+    mask-composite: add;
+  }
+
+  .photo-sharp-up {
+    -webkit-mask-image: linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(0, 0, 0, 0.35) 13%,
+      #000 26%,
+      #000 84%,
+      rgba(0, 0, 0, 0.5) 95%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(0, 0, 0, 0.35) 13%,
+      #000 26%,
+      #000 84%,
+      rgba(0, 0, 0, 0.5) 95%,
+      transparent 100%
+    );
+  }
+
+  .hero-title {
+    font-family: "Bebas Neue Cyrillic", "Bahnschrift", "DIN Condensed", sans-serif;
+    font-weight: 400;
+  }
+
+  /* Заливка градиентом по тексту: сверху чистый белый, к базовой линии уходит
+     в холодный серо-голубой — буквы получают объём вместо плоской заливки.
+     text-shadow по прозрачному тексту не работает, тень даём drop-shadow. */
+  .hero-title span {
+    display: block;
+    /* см. .title-fill-fix ниже — без него у «Й» пропадает бревис */
+    background: linear-gradient(180deg, #ffffff 0%, #f2f6fb 40%, #a8bcd6 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 2px 12px rgba(0, 0, 0, 0.6));
+  }
+
+  /* Та же заливка, что у .hero-title — заголовки секций должны читаться
+     одной системой с первым экраном. */
+  .section-title {
+    font-family: "Bebas Neue Cyrillic", "Bahnschrift", "DIN Condensed", sans-serif;
+    font-weight: 400;
+    background: linear-gradient(180deg, #ffffff 0%, #f2f6fb 42%, #a8bcd6 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.55));
+  }
+
+  /* Заголовки залиты градиентом через background-clip: text, а фон рисуется
+     только по боксу элемента. Кегль здесь идёт с line-height 0.8–0.94, бокс
+     получается ниже естественной строки (38px против 52px на H1), и всё, что
+     торчит выше — бревис «Й», точки «Ё» — остаётся прозрачным: буквы
+     выглядят срезанными сверху. На телефоне заметнее, но баг общий.
+
+     Лечим тремя свойствами, которые вместе не двигают раскладку:
+     padding-top расширяет бокс заливки вверх, translateY возвращает текст
+     на прежнее место, margin-bottom снимает добавленную высоту. Через
+     margin-top компенсировать нельзя — у заголовков стоят утилиты mt-*,
+     а слой utilities перебивает components.
+
+     0.18em взято с запасом: замеренный вылет — 0.146em (7px при кегле 48). */
+  .hero-title span,
+  .section-title {
+    padding-top: 0.18em;
+    margin-bottom: -0.18em;
+    transform: translateY(-0.18em);
+  }
+
+  /* Маски растворения кадра слайда 3 (.coach-portrait, .coach-scene-sharp,
+     .coach-scene-blur) отсюда убраны 31.08 вместе с раскладкой, под которую
+     писались. Они растворяли края кадра-вставки: сначала узкого портрета,
+     потом широкой полосы. В подаче «Досье на поле» кадр лежит подложкой всей
+     секции, растворять его края нечем — под ним сразу тон страницы, и стык
+     делается цветным градиентом прямо в CoachSection. История приёма — в
+     docs/tz/05-STATE.md. */
+
+  /* Номер сегмента в «Для кого»: Bebas, как у заголовков, но в акцентном
+     синем — цифра работает меткой досье, а не подписью к карточке.
+     Трекинг целым пикселем по общему правилу шрифта (см. --tracking-title). */
+  .segment-index {
+    font-family: "Bebas Neue Cyrillic", "Bahnschrift", "DIN Condensed", sans-serif;
+    font-weight: 400;
+    letter-spacing: 1px;
+    color: #6aa0ff;
+  }
+
+  /* Тот же слот, но у бонусного блока: вместо номера в нём стоит слово
+     «БОНУС» — в ТЗ этот блок не пронумерован. Набор и трекинг те же, что у
+     цифр, меняется только цвет: колонка остаётся одной типографической
+     системой, а не превращается в наклейку. */
+  .segment-index-gold {
+    color: #ffc14a;
+  }
+
+  .glass {
+    background: linear-gradient(145deg, rgba(14, 23, 33, 0.86), rgba(7, 12, 18, 0.86));
+    border: 1px solid rgba(190, 210, 230, 0.14);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.055),
+      0 18px 60px rgba(0, 0, 0, 0.28);
+  }
+
+  .blink-dot {
+    animation: blink-dot 1.6s ease-in-out infinite;
+  }
+
+  /* ── Поля формы ───────────────────────────────────────────────────────── */
+  .fi-label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  .fi-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 48px;
+    padding: 0 14px;
+    background: linear-gradient(180deg, rgba(14, 22, 36, 0.95), rgba(7, 12, 22, 0.98));
+    border: 1px solid #1e5bff;
+    border-radius: 12px;
+    transition: border-color 0.2s;
+  }
+
+  .fi-box:focus-within {
+    border-color: #6aa0ff;
+  }
+
+  .fi-box.is-error {
+    border-color: rgba(225, 9, 34, 0.75);
+    box-shadow:
+      0 0 0 3px rgba(225, 9, 34, 0.15),
+      0 0 20px rgba(225, 9, 34, 0.12);
+  }
+
+  .fi-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    color: rgba(106, 160, 255, 0.6);
+    transition: color 0.2s;
+  }
+
+  .fi-box:focus-within .fi-icon {
+    color: #6aa0ff;
+  }
+
+  .fi-input {
+    flex: 1;
+    padding: 14px 0;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    color: #fff;
+  }
+
+  .fi-input::placeholder {
+    color: rgba(255, 255, 255, 0.22);
+  }
+
+  /* Ошибка не появляется рывком, а раскрывается — иначе форма дёргается. */
+  .fi-error {
+    max-height: 0;
+    margin-top: 0;
+    overflow: hidden;
+    opacity: 0;
+    font-size: 11px;
+    color: #e10922;
+    transition:
+      max-height 0.35s var(--ease-mass),
+      margin-top 0.35s var(--ease-mass),
+      opacity 0.35s var(--ease-mass);
+  }
+
+  .fi-error.is-shown {
+    max-height: 40px;
+    margin-top: 5px;
+    opacity: 1;
+  }
+
+  .fi-checkbox {
+    display: flex;
+    width: 20px;
+    height: 20px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: #060c14;
+    transition:
+      background 0.15s,
+      border-color 0.15s;
+  }
+
+  .fi-checkbox svg {
+    display: none;
+  }
+
+  .consent-input:checked + .fi-checkbox {
+    background: #1e5bff;
+    border-color: #1e5bff;
+  }
+
+  .consent-input:checked + .fi-checkbox svg {
+    display: block;
+  }
+
+  /* Чекбокс визуально скрыт, но фокусируем — без этого таб-навигация слепая. */
+  .consent-input:focus-visible + .fi-checkbox {
+    border-color: #6aa0ff;
+    box-shadow: 0 0 0 3px rgba(30, 91, 255, 0.28);
+  }
+}
+
+/* Появление секций при скролле снято 31.08 по просьбе владельца: блоки
+   больше не всплывают, они просто стоят на месте. Удалены правила
+   [data-reveal], [data-reveal].is-in и .reveal-child вместе с атрибутами в
+   разметке; хук src/hooks/useReveal.ts остался в репозитории, но никем не
+   вызывается. Полный текст удалённых правил — в docs/tz/05-STATE.md, если
+   анимацию попросят вернуть. */
+
+/* Секции ниже программы сдвигаются, когда аккордеон меняет высоту. Без
+   собственного слоя браузер перерисовывает их содержимое на каждом кадре —
+   а у «Тренера» это шесть картинок, стеклянная панель и фото с маской.
+   С translateZ они просто композитятся на новом месте. */
+.scroll-layer {
+  transform: translateZ(0);
+}
+
+/* Карточка модуля в программе. contain: layout paint запирает пересчёт
+   внутри карточки: при раскрытии аккордеона браузер не переразмечает и не
+   перерисовывает соседние карточки, а их шесть, и каждая со своими слоями
+   градиента. На телефоне это разница между рывками и ровным ходом.
+
+   Свечение рисуется тенями самой карточки, а не подложенным слоем: своя
+   тень под contain: paint не попадает — оно обрезает только содержимое, —
+   поэтому свет ложится наружу и ничего не стоит по разметке. Радиусы
+   намеренно больше промежутка между карточками (10px): ореолы соседей
+   смешиваются, и колонка читается одной подсвеченной стопкой, а не шестью
+   отдельными плитами. */
+.program-card {
+  contain: layout paint;
+  box-shadow: 0 12px 26px -20px rgba(0, 0, 0, 0.9);
+  transition: box-shadow 320ms var(--ease-mass);
+}
+
+/* Раскрытый модуль светится акцентным синим страницы. Первая тень —
+   волосяная кромка вплотную к рамке, она держит край; вторая уходит вниз
+   тяжёлым пятном; третья — ровный ореол по кругу. */
+.program-card-open {
+  box-shadow:
+    0 0 0 1px rgba(106, 160, 255, 0.12),
+    0 16px 42px -18px rgba(30, 91, 255, 0.62),
+    0 0 34px -10px rgba(48, 105, 220, 0.4);
+}
+
+/* Бонусный блок — тёплое золото вместо синего, и светится он всегда, а не
+   только раскрытым: по ТЗ бонусу нужна визуальная пометка, а в тарифной
+   таблице он входит только в ПРЕМИУМ и ВИП.
+
+   Рамка — не border-color, а градиент по border-box: одна заливка идёт под
+   содержимое (padding-box), вторая рисует саму границу. Обычной границей
+   перелив «светлый угол → тёмный бок → светлый угол», от которого рамка и
+   читается металлической, не получить. Заливка padding-box совпадает с
+   тоном страницы под секцией: содержимое карточки рисует свои фоны поверх,
+   видно её только в закруглениях. */
+.program-card-gold {
+  border-color: transparent;
+  background:
+    linear-gradient(#080e15, #080e15) padding-box,
+    linear-gradient(
+        150deg,
+        rgba(255, 226, 168, 0.9) 0%,
+        rgba(198, 137, 42, 0.45) 38%,
+        rgba(120, 84, 30, 0.3) 62%,
+        rgba(255, 214, 140, 0.75) 100%
+      )
+      border-box;
+  box-shadow:
+    0 0 0 1px rgba(255, 193, 74, 0.1),
+    0 16px 42px -18px rgba(255, 163, 58, 0.42),
+    0 0 34px -10px rgba(255, 193, 74, 0.26);
+}
+
+/* Панель с уроками анимирует height — это layout на каждом кадре, дешевле
+   его не сделать. Зато можно предупредить браузер: пока идёт раскрытие,
+   элемент держится отдельным слоем. Класс снимается по окончании перехода,
+   постоянный will-change съедает память. */
+.program-panel-animating {
+  will-change: height;
+}
+
+@keyframes blink-dot {
+  0%,
+  100% {
+    opacity: 1;
+    background: #ff2f43;
+    box-shadow:
+      0 0 8px 2px rgba(255, 47, 67, 0.95),
+      0 0 16px 4px rgba(255, 47, 67, 0.5);
+  }
+  50% {
+    opacity: 0.35;
+    background: #b00b1d;
+    box-shadow: 0 0 3px 0 rgba(255, 47, 67, 0.25);
+  }
+}
