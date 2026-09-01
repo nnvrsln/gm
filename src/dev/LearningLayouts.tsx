@@ -55,6 +55,17 @@ const BEBAS: CSSProperties = { fontFamily: '"Bebas Neue Cyrillic", "Bahnschrift"
    и боевая секция обязаны показывать одно и то же. Здесь только короткие
    псевдонимы под разметку вариантов. */
 const [PROCESS_CAT, FREE_CAT, AFTER_CAT] = CATEGORIES
+
+/**
+ * Ключи категории без платформы.
+ *
+ * Все три подачи на этой странице строились вокруг платформы-героя: она
+ * стоит отдельным блоком сверху. 01.09 владелец снял этот блок в боевой
+ * секции, и в данных ключ 'platform' переехал первым в категорию «процесс».
+ * Здесь он вычитается обратно — иначе на архивных подачах платформа
+ * показывалась бы дважды: и героем, и строкой списка.
+ */
+const catKeys = (category: LearningCategory) => category.keys.filter((key) => key !== 'platform')
 const BLUE = PROCESS_CAT.color
 const MINT = FREE_CAT.color
 const GOLD = AFTER_CAT.color
@@ -246,7 +257,7 @@ function V1Cabinet() {
           её на поле → разбираете результат с Гаджи Муслимовичем. */}
       <CategoryLabel category={process} className="mt-8" />
       <ol className="mt-1">
-        {pickLearning(...process.keys).map((item, i) => (
+        {pickLearning(...catKeys(process)).map((item, i) => (
           <li key={item.key} className="relative border-b border-white/8 py-3.5 pl-9 last:border-b-0">
             <span
               aria-hidden="true"
@@ -267,7 +278,7 @@ function V1Cabinet() {
           это единственное, что человеку физически выдают. */}
       <CategoryLabel category={free} className="mt-8" />
       <ul className="mt-2 flex flex-col gap-2">
-        {pickLearning(...free.keys).map((item) => (
+        {pickLearning(...catKeys(free)).map((item) => (
           <li
             key={item.key}
             className="relative overflow-hidden rounded-[6px] border px-4 py-3.5"
@@ -297,7 +308,7 @@ function V1Cabinet() {
           ступеней стоял номер, — левый край колонки общий на всю секцию. */}
       <CategoryLabel category={after} className="mt-8" />
       <ul className="mt-1">
-        {pickLearning(...after.keys).map((item) => (
+        {pickLearning(...catKeys(after)).map((item) => (
           <li key={item.key} className="relative border-b border-white/8 py-3.5 pl-9 last:border-b-0">
             <item.icon
               aria-hidden="true"
@@ -351,7 +362,7 @@ function V2Bands() {
           <Band color={category.color} label={category.label} className="mt-8" />
 
           <ul className="mt-1">
-            {pickLearning(...category.keys).map((item) => (
+            {pickLearning(...catKeys(category)).map((item) => (
               <li key={item.key} className="border-b border-white/8 py-3.5 last:border-b-0">
                 <div className="flex items-baseline gap-2.5">
                   <h3
@@ -440,7 +451,7 @@ function V3Route() {
       </div>
 
       {CATEGORIES.map((category, ci) => {
-        const items = pickLearning(...category.keys)
+        const items = pickLearning(...catKeys(category))
         const next = CATEGORIES[ci + 1]
 
         return (

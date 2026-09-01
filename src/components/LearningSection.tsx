@@ -1,7 +1,5 @@
 import type { CSSProperties } from 'react'
-import { CATEGORIES, learningItem, pickLearning, type LearningCategory } from '../data/learning'
-import { PROGRAM } from '../data/program'
-import { PlayIcon } from './icons'
+import { CATEGORIES, pickLearning, type LearningCategory } from '../data/learning'
 
 /**
  * Слайд 5 ТЗ «Как проходит обучение?» — одиннадцать фишек обучения.
@@ -18,10 +16,16 @@ import { PlayIcon } from './icons'
  *
  * Отсюда устройство секции:
  *
- * **Платформа — герой, а не строка списка.** Она стоит первой, единственная
- * имеет свечение по краю и показывает саму себя: окно кабинета с тремя
- * настоящими модулями курса из `data/program.ts` и «24/7» из ТЗ. Свечением
- * больше нигде пользоваться нельзя, иначе выделение перестанет выделять.
+ * **Платформа больше не герой — 01.09 владелец снял блок целиком.** Она была
+ * отдельной панелью со свечением по краю и окном учебного кабинета (список
+ * настоящих модулей курса, полоса прохождения, метка «24/7»). Теперь это
+ * первая строка процесса, перед КОМАНДОЙ и ОБРАТНОЙ СВЯЗЬЮ. Вместе с блоком
+ * ушёл `PlatformWindow` и импорт `PROGRAM`: кроме окна модули курса этой
+ * секции незачем. Если блок понадобится вернуть — он цел в макетной
+ * `src/dev/LearningLayouts.tsx`, там платформа-герой во всех трёх подачах.
+ *
+ * Свечение по краю (`LightEdge`) осталось только у карт бесплатных доступов:
+ * приём должен выделять что-то одно, иначе перестаёт выделять.
  *
  * **Цвет кодирует категорию:** синий — как проходит обучение, мята — что
  * получаете бесплатно, золото — что остаётся после. Мята выбрана холодной,
@@ -57,7 +61,6 @@ const MINT = '#3FE0B0'
 const GOLD = '#FFC14A'
 
 export function LearningSection() {
-  const platform = learningItem('platform')
   const [process, free, after] = CATEGORIES
 
   return (
@@ -93,41 +96,21 @@ export function LearningSection() {
         Как проходит обучение?
       </h2>
 
-      {/* ── Герой: платформа ─────────────────────────────────────────── */}
-      <div
-        className="relative mt-6 overflow-hidden rounded-[6px] border border-[#4C8DFF]/38 bg-[linear-gradient(168deg,#0F1C33_0%,#0A1220_54%,#070C14_100%)] p-4"
-        style={{ boxShadow: '0 12px 34px rgba(30,91,255,.14)' }}
-      >
-        <LightEdge />
-        <div className="flex items-center gap-3">
-          <h3
-            style={BEBAS}
-            className="min-w-0 flex-1 text-[28px] uppercase leading-none tracking-[1px] text-white"
-          >
-            {platform.title}
-          </h3>
-          <span
-            style={BEBAS}
-            className="shrink-0 rounded-[4px] border border-[#6AA0FF]/50 bg-[#6AA0FF]/12 px-2 py-1 text-[17px] leading-none tracking-[1px] text-[#AECBFF]"
-          >
-            24/7
-          </span>
-        </div>
-        <p className="mt-2 text-[12px] leading-[1.5] text-white/60">{platform.text}</p>
-        <div className="mt-3.5">
-          <PlatformWindow />
-        </div>
-      </div>
-
       {/* ── Категория 1: процесс ─────────────────────────────────────────
           Ступени с номерами. Порядок настоящий, так это и проживается:
-          с вами работают профессионалы → они отвечают на домашнее задание →
-          вы строите тренировку в микрогруппе → выносите её на поле своей
-          команды → разбираете результат с Гаджи Муслимовичем. Порядок ТЗ
-          при этом не нарушен по составу, изменена только
-          последовательность внутри категории. */}
-      <CategoryLabel category={process} className="mt-8" />
-      <ol className="mt-1">
+          заходите на платформу → с вами работают профессионалы → они
+          отвечают на домашнее задание → вы строите тренировку в микрогруппе
+          → выносите её на поле своей команды → разбираете результат с Гаджи
+          Муслимовичем. Порядок ТЗ при этом не нарушен по составу, изменена
+          только последовательность внутри категории.
+
+          **Подписи у этой категории нет — она снята 01.09 по просьбе
+          владельца.** Маленькая надпись «Как проходит обучение» повторяла
+          заголовок секции слово в слово, стоя на 40px ниже него. У двух
+          других категорий подпись осталась: они называют то, чего в
+          заголовке нет. Отступ `mt-8`, который был на подписи, переехал на
+          сам список — иначе список прилипал бы к заголовку. */}
+      <ol className="mt-6">
         {pickLearning(...process.keys).map((item, i) => (
           <li key={item.key} className="relative border-b border-white/8 py-3.5 pl-9 last:border-b-0">
             <span
@@ -197,75 +180,6 @@ export function LearningSection() {
         ))}
       </ul>
     </section>
-  )
-}
-
-/**
- * Окно учебного кабинета. Платформа показывает саму себя, а не иллюстрацию:
- * в списке стоят настоящие модули курса из `data/program.ts`, то есть тот
- * же ТЗ. Ничего не выдумано.
- */
-function PlatformWindow() {
-  const modules = PROGRAM.slice(0, 3)
-
-  return (
-    <div
-      className="relative overflow-hidden rounded-[6px] border border-white/12 bg-[#070c14]"
-      style={{ boxShadow: 'inset 0 0 34px rgba(76,141,255,.14)' }}
-    >
-      <LightEdge opacity={0.28} />
-
-      {/* Шапка окна. Точки не изображают браузер — они мельче и в один тон,
-          это индикаторы окна. «24/7» здесь не повторяем: оно уже стоит в
-          шапке блока крупно, и две одинаковые метки в сорока пикселях друг
-          от друга читались сбоем. */}
-      <div className="flex items-center justify-between border-b border-white/10 px-3 py-2">
-        <span aria-hidden="true" className="flex gap-1">
-          <span className="size-1.5 rounded-full bg-white/20" />
-          <span className="size-1.5 rounded-full bg-white/14" />
-          <span className="size-1.5 rounded-full bg-white/10" />
-        </span>
-        <span aria-hidden="true" className="h-1 w-8 rounded-full bg-white/10" />
-      </div>
-
-      <ul className="px-3 py-2.5">
-        {modules.map((module, i) => (
-          <li key={module.title} className="flex items-center gap-2.5 py-1.5">
-            <span
-              aria-hidden="true"
-              className={`flex size-6 shrink-0 items-center justify-center rounded-full border ${
-                i === 0
-                  ? 'border-[#6AA0FF]/50 bg-[#6AA0FF]/14 text-[#9CC0FF]'
-                  : 'border-white/14 text-white/34'
-              }`}
-            >
-              <PlayIcon className="ml-px size-2.5" />
-            </span>
-            {/* truncate — обычное поведение интерфейса со списком длинных
-                названий, а не сокращение текста ТЗ: полные названия модулей
-                стоят этажом выше, в «Программе обучения». */}
-            <span className="min-w-0 flex-1 truncate text-[11.5px] leading-none text-white/62">
-              {module.title}
-            </span>
-            <span
-              aria-hidden="true"
-              style={BEBAS}
-              className="shrink-0 text-[12px] leading-none tracking-[1px] text-white/24 tabular-nums"
-            >
-              {module.num ?? '—'}
-            </span>
-          </li>
-        ))}
-      </ul>
-
-      {/* Полоса прохождения. Значение декоративное, поэтому без role и без
-          цифры: обещать конкретный процент курса мы не можем. */}
-      <div aria-hidden="true" className="px-3 pb-3">
-        <div className="h-1 overflow-hidden rounded-full bg-white/8">
-          <div className="h-full w-[38%] rounded-full bg-[linear-gradient(90deg,#4C8DFF,#8FC0FF)]" />
-        </div>
-      </div>
-    </div>
   )
 }
 
