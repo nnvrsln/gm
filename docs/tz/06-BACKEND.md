@@ -334,7 +334,9 @@ PUBLIC_SITE_URL
 1. ✅ Переезд на npm workspaces, `packages/shared` с ценами (коммит `c54df18`).
 2. ✅ Каркас Fastify: конфиг с проверкой окружения, логи, `/health` с проверкой
    базы, подключение Drizzle, Docker Compose с Postgres и Caddy, обвязка миграций.
-3. Схема БД и `POST /api/orders` без платёжки — заказ создаётся и лежит.
+3. ✅ Схема БД (4 таблицы, миграция `0000_orders_payments_consents`) и
+   `POST /api/orders` + `GET /api/orders/:publicId` без платёжки — заказ
+   создаётся и лежит, `paymentUrl` в ответе пока `null`.
 4. Prodamus: подписанная ссылка, вебхук, идемпотентность. Тесты на подпись и на
    повторное событие — это места, где ошибка стоит денег.
 5. Очередь и amoCRM.

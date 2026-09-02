@@ -9,6 +9,7 @@
  * сейчас это подключение к базе.
  */
 
+import rateLimit from '@fastify/rate-limit'
 import Fastify from 'fastify'
 import {
   serializerCompiler,
@@ -18,6 +19,7 @@ import {
 import { config } from './config'
 import databasePlugin from './plugins/db'
 import { healthRoutes } from './modules/health/routes'
+import { orderRoutes } from './modules/orders/routes'
 
 export async function buildApp() {
   const app = Fastify({
@@ -49,7 +51,13 @@ export async function buildApp() {
 
   await app.register(databasePlugin)
 
+  // Глобального лимита нет: он одинаково душил бы и создание заказа, и
+  // вебхук платёжки, которому мешать нельзя. Ограничение включается на
+  // конкретных маршрутах через `config.rateLimit`.
+  await app.register(rateLimit, { global: false })
+
   await app.register(healthRoutes, { prefix: '/api' })
+  await app.register(orderRoutes, { prefix: '/api' })
 
   return app
 }

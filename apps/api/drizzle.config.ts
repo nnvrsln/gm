@@ -12,8 +12,9 @@ export default defineConfig({
   dialect: 'postgresql',
   schema: './src/db/schema.ts',
   out: './drizzle',
+  // Имена колонок в схеме проставлены руками (snake_case), поэтому
+  // автоматическое преобразование здесь не нужно и только запутывало бы.
   dbCredentials: {
     url: process.env.DATABASE_URL ?? '',
   },
-  casing: 'snake_case',
 })

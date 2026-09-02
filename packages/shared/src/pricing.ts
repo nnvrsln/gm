@@ -31,7 +31,12 @@ export type TariffId = 'standard' | 'premium' | 'vip'
  */
 export type PayAction = 'full' | 'reserve'
 
-export const TARIFF_ORDER: readonly TariffId[] = ['standard', 'premium', 'vip']
+/**
+ * Кортеж, а не массив: из него строится проверка входа на сервере, и
+ * литеральные типы должны сохраниться, иначе `tariffId` выродится в
+ * `string` и мимо валидации пройдёт любая строка.
+ */
+export const TARIFF_ORDER = ['standard', 'premium', 'vip'] as const satisfies readonly TariffId[]
 
 export const TARIFF_NAMES: Record<TariffId, string> = {
   standard: 'Стандарт',

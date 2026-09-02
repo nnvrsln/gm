@@ -11,6 +11,7 @@ import type {
 import { usePhoneMask } from '../hooks/usePhoneMask'
 import { legalDoc } from '../data/legal'
 import { cn } from '../lib/cn'
+import { EMAIL_RE, TELEGRAM_RE } from '@gm/shared'
 import { PHONE_RE } from '../lib/phone'
 import { CheckIcon, MailIcon, PhoneIcon, TelegramIcon, WhatsAppIcon } from './icons'
 
@@ -57,12 +58,9 @@ import { CheckIcon, MailIcon, PhoneIcon, TelegramIcon, WhatsAppIcon } from './ic
  * только если поле трогали или оно уже горело.
  */
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[A-Za-zА-Яа-я]{2,}$/
-/**
- * Ник в Telegram: латиница, цифры и подчёркивание, 5–32 знака. Собачка
- * необязательна — человек одинаково часто пишет и с ней, и без.
- */
-const TELEGRAM_RE = /^@?[A-Za-z0-9_]{5,32}$/
+// EMAIL_RE (нестрогая проверка почты) и TELEGRAM_RE (латиница, цифры и
+// подчёркивание, 5–32 знака, собачка необязательна) переехали в
+// `@gm/shared`: теми же правилами проверяет вход сервер.
 
 type FieldId = 'phone' | 'email' | 'telegram' | 'whatsapp'
 
