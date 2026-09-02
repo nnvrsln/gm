@@ -477,126 +477,238 @@
     animation: blink-dot 1.6s ease-in-out infinite;
   }
 
-  /* ── Поля формы ───────────────────────────────────────────────────────── */
-  .fi-label {
-    display: block;
-    margin-bottom: 6px;
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: rgba(255, 255, 255, 0.55);
+  /* ── Форма покупки ────────────────────────────────────────────────────
+     Второй заход: первый был набран языком страницы — капслок Bebas в
+     подписях, трекинг .14em, радиус 6px, рамка на каждом блоке, — и лист
+     читался тактической схемой, а не формой оплаты. Владелец попросил
+     обычную форму, сделанную хорошо, поэтому здесь язык не витрины, а
+     интерфейса: подписи обычным текстом, радиус 10px, воздух между
+     группами, один акцент на всю форму.
+
+     Цвет акцента приезжает переменной `--pay-accent`: её ставит сам лист
+     инлайном, и форма окрашивается тем же действием, что кнопка под ней. */
+  .pay-sheet {
+    --pay-accent: #6aa0ff;
+    /* Краска ошибки. Красный на странице отменён как акцент (30.08), но
+       ошибка — сигнал, а не украшение. Взят не токен `blood` (#e10922): на
+       подложке листа он даёт 4.3:1, меньше нормы для мелкого текста.
+       Этот — 6.6:1. */
+    --pay-error: #ff7a85;
   }
 
-  .fi-box {
+  /* Спокойная подложка группы: чуть светлее листа, рамка почти невидимая.
+     Именно «чуть»: панель должна отделяться от фона, а не спорить с ним. */
+  .pay-panel {
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.035);
+  }
+
+  .pay-label {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 7px;
+    font-size: 13px;
+    line-height: 1.2;
+    color: rgba(255, 255, 255, 0.62);
+  }
+
+  .pay-box {
     display: flex;
     align-items: center;
     gap: 10px;
-    min-height: 48px;
-    padding: 0 14px;
-    background: linear-gradient(180deg, rgba(14, 22, 36, 0.95), rgba(7, 12, 22, 0.98));
-    border: 1px solid #1e5bff;
-    border-radius: 12px;
-    transition: border-color 0.2s;
+    min-height: 50px;
+    padding: 0 13px;
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    transition:
+      border-color 0.18s ease,
+      box-shadow 0.18s ease,
+      background-color 0.18s ease;
   }
 
-  .fi-box:focus-within {
-    border-color: #6aa0ff;
+  .pay-box:focus-within {
+    border-color: var(--pay-accent);
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--pay-accent) 20%, transparent);
   }
 
-  .fi-box.is-error {
-    border-color: rgba(225, 9, 34, 0.75);
-    box-shadow:
-      0 0 0 3px rgba(225, 9, 34, 0.15),
-      0 0 20px rgba(225, 9, 34, 0.12);
+  .pay-box.is-error {
+    border-color: var(--pay-error);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--pay-error) 18%, transparent);
   }
 
-  .fi-icon {
-    width: 16px;
-    height: 16px;
+  .pay-box-icon {
+    width: 17px;
+    height: 17px;
     flex-shrink: 0;
-    color: rgba(106, 160, 255, 0.6);
-    transition: color 0.2s;
+    color: rgba(255, 255, 255, 0.3);
+    transition: color 0.18s ease;
   }
 
-  .fi-box:focus-within .fi-icon {
-    color: #6aa0ff;
+  .pay-box:focus-within .pay-box-icon {
+    color: var(--pay-accent);
   }
 
-  .fi-input {
+  .pay-box.is-error .pay-box-icon {
+    color: var(--pay-error);
+  }
+
+  .pay-input {
     flex: 1;
+    width: 100%;
+    min-width: 0;
     padding: 14px 0;
-    background: transparent;
     border: none;
+    background: transparent;
     outline: none;
-    font-size: 14px;
+    /* 16px обязателен, и это не про красоту: Safari на iOS увеличивает
+       страницу при фокусе в поле с кеглем меньше 16px, а лист после этого
+       остаётся в увеличенном виде и уезжает за экран. */
+    font-size: 16px;
+    line-height: 1.2;
     color: #fff;
   }
 
-  .fi-input::placeholder {
-    color: rgba(255, 255, 255, 0.22);
+  .pay-input::placeholder {
+    color: rgba(255, 255, 255, 0.28);
   }
 
-  /* Ошибка не появляется рывком, а раскрывается — иначе форма дёргается. */
-  .fi-error {
+  /* У поля своя подсветка — рамка коробки. Общее кольцо `.pay-sheet
+     :focus-visible` рисовалось поверх неё вторым контуром, и белый
+     прямоугольник внутри цветной рамки читался ошибкой вёрстки. Кольцо
+     остаётся у кнопок, ссылок и чекбоксов. */
+  .pay-input:focus-visible,
+  .pay-check-input:focus-visible {
+    outline: none;
+  }
+
+  /* Ошибка раскрывается, а не появляется рывком: при мгновенном показе
+     форма подпрыгивает и уводит из-под пальца соседнее поле. */
+  .pay-error {
     max-height: 0;
     margin-top: 0;
     overflow: hidden;
     opacity: 0;
-    font-size: 11px;
-    color: #e10922;
+    font-size: 12.5px;
+    line-height: 1.35;
+    color: var(--pay-error);
     transition:
-      max-height 0.35s var(--ease-mass),
-      margin-top 0.35s var(--ease-mass),
-      opacity 0.35s var(--ease-mass);
+      max-height 0.3s var(--ease-mass),
+      margin-top 0.3s var(--ease-mass),
+      opacity 0.3s var(--ease-mass);
   }
 
-  .fi-error.is-shown {
-    max-height: 40px;
-    margin-top: 5px;
+  .pay-error.is-shown {
+    max-height: 48px;
+    margin-top: 6px;
     opacity: 1;
   }
 
-  .fi-checkbox {
-    display: flex;
-    width: 20px;
-    height: 20px;
-    align-items: center;
-    justify-content: center;
-    border-radius: 6px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    background: #060c14;
-    transition:
-      background 0.15s,
-      border-color 0.15s;
+  /* Настоящий <input type="checkbox">: прозрачный и лежит ровно поверх
+     нарисованного квадрата. Не спрятан, а именно прозрачен — он остаётся
+     фокусируемым и переключается пробелом, чего <div> не умеет.
+
+     ⚠ Утилитой `sr-only` его прятать нельзя, и это стоило бага.
+     `sr-only` — это `position: absolute` без смещений, то есть элемент
+     выпадает из потока, а его содержащим блоком становится ближайший
+     позиционированный предок. Здесь это `.pay-sheet` (у неё `position:
+     relative`), а вовсе не прокручиваемая `.pay-scroll`. Инпут переставал
+     ездить вместе с содержимым и застревал на своей исходной координате —
+     замер показал `top: 1434px` при высоте листа 820. При нажатии браузер
+     уводил фокус на этот элемент и тянул его в видимую зону, прокручивая
+     **каждого** прокручиваемого предка, — а единственным подходящим
+     оказывался сам `<dialog>`: лист целиком подпрыгивал на 554px, и это
+     выглядело так, будто форму скомкало.
+
+     Та же грабля в проекте уже была дважды — с `CourseBackdrop`, который
+     делал прокручиваемым сначала `<main>`, потом обёртку секций. Правило
+     одно: абсолютный элемент внутри прокручиваемой области обязан иметь
+     содержащий блок внутри неё же. Здесь это решено `position: relative`
+     на самой подписи чекбокса. */
+  .pay-check-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 21px;
+    height: 21px;
+    margin: 0;
+    appearance: none;
+    opacity: 0;
   }
 
-  .fi-checkbox svg {
+  /* Квадрат чекбокса — то, что человек видит вместо инпута. */
+  .pay-check {
+    display: flex;
+    width: 21px;
+    height: 21px;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.04);
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease;
+  }
+
+  .pay-check svg {
     display: none;
   }
 
-  .consent-input:checked + .fi-checkbox {
-    background: #1e5bff;
-    border-color: #1e5bff;
+  .pay-check-input:checked + .pay-check {
+    border-color: var(--pay-accent);
+    background: var(--pay-accent);
   }
 
-  .consent-input:checked + .fi-checkbox svg {
+  .pay-check-input:checked + .pay-check svg {
     display: block;
   }
 
-  /* Чекбокс визуально скрыт, но фокусируем — без этого таб-навигация слепая. */
-  .consent-input:focus-visible + .fi-checkbox {
-    border-color: #6aa0ff;
-    box-shadow: 0 0 0 3px rgba(30, 91, 255, 0.28);
+  .pay-check-input:focus-visible + .pay-check {
+    border-color: var(--pay-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--pay-accent) 26%, transparent);
+  }
+
+  .pay-check-input.is-error + .pay-check {
+    border-color: var(--pay-error);
+  }
+
+  /* Главная кнопка листа. Не `.btn-hero`: та набрана Bebas-капслоком в
+     20px с трекингом — голос витрины. В форме оплаты кнопка должна
+     называть действие и сумму обычными словами, как в любом чекауте. */
+  .pay-cta {
+    display: flex;
+    width: 100%;
+    min-height: 54px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 16px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.2;
+    transition:
+      transform 0.15s var(--ease-snap),
+      filter 0.15s ease;
+  }
+
+  .pay-cta:active {
+    transform: scale(0.985);
   }
 }
 
 /* Появление секций при скролле снято 31.08 по просьбе владельца: блоки
    больше не всплывают, они просто стоят на месте. Удалены правила
    [data-reveal], [data-reveal].is-in и .reveal-child вместе с атрибутами в
-   разметке; хук src/hooks/useReveal.ts остался в репозитории, но никем не
-   вызывается. Полный текст удалённых правил — в docs/tz/05-STATE.md, если
-   анимацию попросят вернуть. */
+   разметке; хук src/hooks/useReveal.ts удалён при чистке 01.09. Полный
+   текст удалённых правил — в docs/tz/05-STATE.md, если анимацию попросят
+   вернуть. */
 
 /* Секции ниже программы сдвигаются, когда аккордеон меняет высоту. Без
    собственного слоя браузер перерисовывает их содержимое на каждом кадре —
@@ -682,5 +794,209 @@
     opacity: 0.35;
     background: #b00b1d;
     box-shadow: 0 0 3px 0 rgba(255, 47, 67, 0.25);
+  }
+}
+
+/* ── Лист оплаты ────────────────────────────────────────────────────────────
+   Модалка на кнопках «Оплатить полностью» и «Забронировать». Собрана на
+   нативном <dialog> с showModal(), а не на своём слое с фиксированным
+   позиционированием, и это не вкусовщина: <main> обёрнут в overflow-hidden
+   (см. комментарий в App.tsx — без него якорная прокрутка уносит секции), и
+   любой собственный оверлей внутри него пришлось бы либо портировать в
+   document.body, либо ловить обрезку. Модальный <dialog> уходит в top layer,
+   то есть рисуется поверх всего дерева независимо от overflow предков, и
+   даёт три вещи даром: захват фокуса, закрытие по Esc и inert для страницы
+   под собой. Своим кодом это три источника ошибок.
+
+   Подача — нижний лист (bottom sheet), а не карточка по центру: макет
+   мобильный, палец живёт у нижней кромки, и лист выезжает с той же стороны,
+   с которой пришло нажатие по кнопке в карточке тарифа. */
+@layer components {
+  /* display обязан стоять именно на [open].
+
+     У <dialog> в UA-стилях прописано `dialog:not([open]) { display: none }`,
+     но специфичность этого правила — один тип и одна псевдокласс-скобка, а
+     `.pay-dialog { display: flex }` её перебивает: закрытый лист начинал
+     рисоваться поверх страницы всегда. Селектор с [open] снимает вопрос —
+     закрытому диалогу display мы вообще не задаём. */
+  .pay-dialog[open] {
+    display: flex;
+  }
+
+  /* Страница под открытым листом не прокручивается. Модальный <dialog>
+     делает её inert, то есть некликабельной, но колесо и палец её всё равно
+     двигают — и человек, доскроллив лист, продолжает движение уже по
+     лендингу под ним. Замок вешается на body через :has, а не сменой класса
+     из React: класс пришлось бы снимать в четырёх местах (крестик, Esc, тап
+     мимо, размонтирование), и любое пропущенное оставило бы страницу
+     запертой навсегда. Селектор сам следует за атрибутом [open]. */
+  body:has(.pay-dialog[open]) {
+    overflow: hidden;
+  }
+
+  .pay-dialog {
+    position: fixed;
+    inset: 0;
+    /* Высота именно 100dvh, а не 100%: на iOS панель браузера то появляется,
+       то уходит, и при 100% нижняя кромка листа вместе с главной кнопкой
+       заезжала под адресную строку. dvh следует за живой высотой окна.
+       Строка с vh стоит первой запасным вариантом для старых движков. */
+    height: 100vh;
+    height: 100dvh;
+    width: 100%;
+    max-width: none;
+    max-height: none;
+    /* Диалог сам себе флекс-контейнер, без внутренней обёртки-подложки.
+       Так работает закрытие по тапу мимо: клик по пустому месту приходит
+       ровно на сам <dialog>, и обработчику достаточно сравнить target с
+       элементом. С обёрткой пришлось бы разбирать всплытие. */
+    align-items: flex-end;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    overflow: hidden;
+  }
+
+  .pay-dialog::backdrop {
+    /* Затемнение плотное: под листом идёт лента тарифов в цвете, и на
+       полупрозрачной подложке она продолжала спорить с содержимым листа.
+       Размытие мелкое — 3px хватает, чтобы текст под ним перестал читаться,
+       а на телефоне это ещё дешёвый кадр. */
+    background: rgba(2, 4, 7, 0.74);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+    animation: pay-backdrop-in 240ms var(--ease-mass);
+  }
+
+  .pay-sheet {
+    position: relative;
+    display: flex;
+    width: 100%;
+    max-width: 430px;
+    /* Верхняя кромка листа никогда не доходит до верха экрана: полоска
+       затемнённой страницы над ним и есть то, что объясняет человеку, куда
+       он попал и куда вернётся. */
+    max-height: 88dvh;
+    flex-direction: column;
+    overflow: hidden;
+    /* Радиус только сверху, 16px. Первая версия шла на 6px — тех же, что у
+       карточек тарифов и кнопок, — и лист выглядел продолжением витрины.
+       Он ей и не должен быть: это форма покупки, у неё язык интерфейса, а
+       16px по верхним углам — то, как выглядит любой нижний лист на
+       телефоне, и человек узнаёт его до того, как прочтёт заголовок. */
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    background: #0b1118;
+    animation: pay-sheet-in 260ms var(--ease-mass);
+  }
+
+  /* Закрытие быстрее открытия: уход должен ощущаться откликом на нажатие, а
+     не второй анимацией, которую досматривают. */
+  .pay-sheet-closing {
+    animation: pay-sheet-out 180ms var(--ease-snap) forwards;
+  }
+
+  .pay-dialog.is-closing::backdrop {
+    animation: pay-backdrop-out 180ms var(--ease-snap) forwards;
+  }
+
+  /* Полоска-ручка. Не кнопка и ничего не делает — это знак «лист тянется
+     снизу», единственный способ объяснить происхождение панели без слов. */
+  .pay-grabber {
+    width: 36px;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.22);
+  }
+
+  /* Прокрутка содержимого — внутри листа, не страницы. overscroll-behavior
+     держит инерцию: без него доскролленный до конца лист начинает тянуть за
+     собой страницу под собой, и человек закрывает модалку случайно. */
+  .pay-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    /* Полоса прокрутки скрыта — тем же приёмом, что у ленты тарифов и
+       ленты сегментов слайда 2. Прокручиваемость при этом остаётся: убран
+       только индикатор.
+
+       На телефоне полоса и так наложенная и появляется лишь на время
+       движения, а на листе она вдобавок садилась поверх правого края
+       панелей и читалась их частью. Что лист листается, видно и без неё:
+       содержимое обрезано по нижней кромке области прокрутки. */
+    scrollbar-width: none;
+  }
+
+  .pay-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Подвал листа прижат к нижней кромке экрана — на телефонах с жестовой
+     панелью главная кнопка иначе оказывается ровно под полоской «домой». */
+  .pay-footer {
+    padding-bottom: calc(14px + env(safe-area-inset-bottom));
+  }
+
+  /* Фокус виден на всех управляющих элементах листа. Кольцо рисуется
+     outline с отступом, а не тенью: тень съедается overflow-hidden у
+     заголовка и подвала, а outline — нет.
+
+     Поля и чекбоксы исключены: у них своя подсветка — рамка коробки и
+     заливка квадрата. Отменить кольцо правилом `.pay-input:focus-visible`
+     не выходит: у него та же специфичность (0,2,0), а это правило стоит в
+     файле ниже и потому выигрывает. Исключение приходится делать здесь. */
+  .pay-sheet :focus-visible:not(.pay-input):not(.pay-check-input) {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pay-sheet,
+    .pay-sheet-closing,
+    .pay-dialog::backdrop,
+    .pay-dialog.is-closing::backdrop {
+      animation: none;
+    }
+  }
+}
+
+@keyframes pay-sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes pay-sheet-out {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes pay-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pay-backdrop-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
   }
 }

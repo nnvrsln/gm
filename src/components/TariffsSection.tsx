@@ -7,9 +7,11 @@ import {
   formatPrice,
   tariff,
   whatsappHref,
+  type PayAction,
   type Tariff,
   type TariffId,
 } from '../data/tariffs'
+import { PaySheet, type PayTarget } from './PaySheet'
 import { StarIcon, WhatsAppIcon } from './icons'
 
 /**
@@ -62,7 +64,8 @@ import { StarIcon, WhatsAppIcon } from './icons'
  *
  * TODO (Q18): номера WhatsApp и текстов стартовых сообщений заказчик не
  * дал. `WHATSAPP_NUMBER` пуст — ссылки рисуются, но никуда не ведут.
- * TODO (Q19): бэкенда нет, обе кнопки оплаты — заглушки.
+ * TODO (Q19): бэкенда нет. Обе кнопки оплаты открывают `PaySheet`, а
+ * заглушка живёт на главной кнопке листа.
  * TODO (Q23): два вопроса заказчика к самому себе (микрогруппы в СТАНДАРТЕ,
  * живая встреча вообще) стоят в данных с флагом `pending`.
  */
@@ -93,6 +96,10 @@ const SIDE_PAD = `calc(50% + ${BLEED}px - ${CARD / 2}px)`
 export function TariffsSection() {
   const track = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState<TariffId>('premium')
+  // Открытый лист оплаты. Состояние живёт здесь, а не в карточке: лист один
+  // на секцию, и три копии <dialog> в ленте означали бы три параллельных
+  // модалки, из которых открыта всегда одна.
+  const [pay, setPay] = useState<PayTarget | null>(null)
 
   // Открыть на ПРЕМИУМЕ — его и надо продавать, а СТАНДАРТ остаётся слева
   // точкой отсчёта. Без анимации и до первой отрисовки: анимированная
@@ -168,7 +175,12 @@ export function TariffsSection() {
         }}
       >
         {TARIFFS.map((item) => (
-          <TariffCard key={item.id} item={item} active={active === item.id} />
+          <TariffCard
+            key={item.id}
+            item={item}
+            active={active === item.id}
+            onPay={(action) => setPay({ id: item.id, action })}
+          />
         ))}
       </div>
 
@@ -198,6 +210,11 @@ export function TariffsSection() {
       </div>
 
       <ContactBlock />
+
+      {/* Лист оплаты. Стоит в разметке секции, но рисуется не в ней: у
+          модального <dialog> собственный top layer, поэтому ни z-10 секции,
+          ни overflow-hidden обёртки на него не действуют. */}
+      <PaySheet target={pay} onClose={() => setPay(null)} />
     </section>
   )
 }
@@ -219,7 +236,15 @@ function centerOf(track: HTMLElement, index: number) {
 }
 
 /** Столбец тарифа: шапка ступени, цена, полный состав, две кнопки. */
-function TariffCard({ item, active }: { item: Tariff; active: boolean }) {
+function TariffCard({
+  item,
+  active,
+  onPay,
+}: {
+  item: Tariff
+  active: boolean
+  onPay: (action: PayAction) => void
+}) {
   const hit = Boolean(item.hit)
   const accent = item.accent
 
@@ -312,7 +337,7 @@ function TariffCard({ item, active }: { item: Tariff; active: boolean }) {
           })}
         </ul>
 
-        <PayButtons id={item.id} accent={hit ? undefined : accent} />
+        <PayButtons id={item.id} accent={hit ? undefined : accent} onPay={onPay} />
       </div>
     </article>
   )
@@ -365,9 +390,12 @@ function Mark({ on, color }: { on: boolean; color: string }) {
  * Две кнопки покупки. Иерархия — из заливки ячеек таблицы заказчика:
  * «Оплатить полностью» яркая, «Забронировать» контурная.
  *
- * Q19: бэкенда нет, обе — заглушки. По нажатию подпись меняется на «Скоро»
- * и возвращается: кнопка обязана отвечать на нажатие, иначе человек решит,
- * что сломался сайт, и уйдёт. Ставятся сеткой, а не флексом в колонку: у
+ * Обе открывают `PaySheet` — лист с выбранным тарифом, суммами и условиями
+ * из ТЗ. Заглушка Q19 (подпись «Скоро» при нажатии) переехала на главную
+ * кнопку листа: до появления оплаты человеку сначала показывают, за что и
+ * сколько, и только потом упираются в отсутствующего провайдера.
+ *
+ * Ставятся сеткой, а не флексом в колонку: у
  * .btn-hero-primary в CSS стоит flex:1.15 (это для пары в строку), и в
  * колоночном флексе базис 0% схлопнул бы кнопку по высоте.
  *
@@ -377,8 +405,15 @@ function Mark({ on, color }: { on: boolean; color: string }) {
  * одинаковый, и «выделить хит больше всех» ломается именно на нём. Вернуть
  * всем одинаковую синюю заливку — это убрать одно свойство.
  */
-function PayButtons({ id, accent }: { id: TariffId; accent?: string }) {
-  const [pressed, setPressed] = useState<string | null>(null)
+function PayButtons({
+  id,
+  accent,
+  onPay,
+}: {
+  id: TariffId
+  accent?: string
+  onPay: (action: PayAction) => void
+}) {
   const name = tariff(id).name
 
   return (
@@ -394,10 +429,7 @@ function PayButtons({ id, accent }: { id: TariffId; accent?: string }) {
             // Тариф назван в aria-label, а не отдельной скрытой строкой: без
             // него скринридер читает три пары одинаковых кнопок подряд.
             aria-label={`${button.label} — тариф ${name}`}
-            onClick={() => {
-              setPressed(button.action)
-              window.setTimeout(() => setPressed(null), 1400)
-            }}
+            onClick={() => onPay(button.action)}
             style={
               tinted
                 ? { color: accent, border: `1px solid ${accent}80`, backgroundColor: `${accent}1F` }
@@ -405,7 +437,7 @@ function PayButtons({ id, accent }: { id: TariffId; accent?: string }) {
             }
             className={`btn-hero w-full ${main ? (tinted ? '' : 'btn-hero-primary') : 'btn-hero-secondary'}`}
           >
-            {pressed === button.action ? 'Скоро' : button.label}
+            {button.label}
           </button>
         )
       })}

@@ -571,3 +571,175 @@ export function LockedChatIcon(props: IconProps) {
     </svg>
   )
 }
+
+/** Крестик закрытия — лист оплаты. Тот же вес штриха, что у CheckIcon. */
+export function CloseIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
+      <path
+        d="M6 6l12 12M18 6L6 18"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
+/** Конверт — поле e-mail в форме покупки. */
+export function MailIcon(props: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      {...props}
+    >
+      <rect x="2.5" y="4.5" width="19" height="15" rx="2.5" />
+      <path d="M3.5 7l7.4 5.2a2 2 0 002.2 0L20.5 7" />
+    </svg>
+  )
+}
+
+/**
+ * Бумажный самолётик Telegram. Контурный, как остальные значки полей, —
+ * фирменный кружок с заливкой рядом с конвертом и трубкой читался бы
+ * чужеродной наклейкой.
+ */
+export function TelegramIcon(props: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      {...props}
+    >
+      <path d="M21.2 4.3L2.9 11.1c-.7.3-.7 1.2 0 1.4l4.6 1.5 1.7 5c.2.7 1 .8 1.5.3l2.4-2.4 4.5 3.3c.6.4 1.3.1 1.5-.6l3-14.2c.1-.7-.5-1.3-1.2-1.1z" />
+      <path d="M7.5 14l11.5-8-8.7 9.9" />
+    </svg>
+  )
+}
+
+/**
+ * Замок — строка доверия под способами оплаты. Дужка отдельным путём, а не
+ * частью корпуса: на 14px слитый контур превращается в пятно.
+ */
+export function LockIcon(props: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      {...props}
+    >
+      <rect x="4.5" y="10" width="15" height="10.5" rx="2.5" />
+      <path d="M8 10V7.5a4 4 0 018 0V10" />
+    </svg>
+  )
+}
+
+/* ── Значки способов оплаты ──────────────────────────────────────────────
+   Три значка ниже взяты из набора Lucide (lucide.dev, лицензия ISC) и
+   вставлены путями, а не пакетом: нужны ровно три штуки, а зависимость
+   ради них тянула бы в проект весь набор.
+
+   Это не вкусовщина, а замена: до 02.09 здесь стояли рисованные от руки
+   глифы, и рукопожатие на 18px слипалось в пятно, похожее на очки.
+   Lucide нарисован на сетке 24 с обводкой 2 — на мелком кегле он держит
+   форму. Обводка оставлена авторская (2 вместо проектных 1.6): на 20px
+   более тонкая линия у этих контуров бледнеет рядом с цветным знаком СБП,
+   стоящим в том же столбце.
+
+   Знак СБП сюда не входит: это чужой товарный знак, он лежит файлом
+   `assets/sbp.svg` — см. разбор у `PayMethods` в `PaySheet.tsx`. */
+
+/** Карта — «оплата любой картой РФ». Lucide `credit-card`. */
+export function CardIcon(props: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      {...props}
+    >
+      <rect width="20" height="14" x="2" y="5" rx="2" />
+      <line x1="2" x2="22" y1="10" y2="10" />
+    </svg>
+  )
+}
+
+/**
+ * Здание банка — «банковская рассрочка». Lucide `landmark`.
+ *
+ * Взято здание, а не календарь: календарь говорит «платёж во времени», это
+ * верно для обеих рассрочек сразу, а различает их именно слово
+ * «банковская». Заодно силуэт не повторяет прямоугольник карты строкой
+ * выше.
+ */
+export function InstallmentIcon(props: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      {...props}
+    >
+      <path d="M10 18v-7" />
+      <path d="M11.119 2.205a2 2 0 0 1 1.762 0l7.84 3.846A.5.5 0 0 1 20.5 7h-17a.5.5 0 0 1-.22-.949z" />
+      <path d="M14 18v-7" />
+      <path d="M18 18v-7" />
+      <path d="M3 22h18" />
+      <path d="M6 18v-7" />
+    </svg>
+  )
+}
+
+/**
+ * Рукопожатие — «исламская рассрочка». Lucide `handshake`.
+ *
+ * Полумесяца здесь намеренно нет: религиозный символ на строке платёжного
+ * инструмента подменяет предмет — речь про порядок расчётов, а не про
+ * вероисповедание покупателя. Рукопожатие говорит про договорённость, а
+ * договорённость и есть то, чем эта строка отличается от трёх соседних:
+ * её оформляют не нажатием, а через менеджера.
+ */
+export function ManagerIcon(props: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      {...props}
+    >
+      <path d="m11 17 2 2a1 1 0 1 0 3-3" />
+      <path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4" />
+      <path d="m21 3 1 11h-2" />
+      <path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3" />
+      <path d="M3 4h8" />
+    </svg>
+  )
+}
