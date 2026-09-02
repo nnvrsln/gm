@@ -42,8 +42,17 @@
  * стоит флаг `pending` — см. `PENDING_NOTES` внизу файла.
  */
 
-/** Идентификаторы колонок. Порядок — порядок цены, он же порядок таблицы. */
-export type TariffId = 'standard' | 'premium' | 'vip'
+/**
+ * Деньги и идентификаторы переехали в `@gm/shared`: те же числа нужны
+ * серверу, который считает сумму заказа сам и не верит клиенту. Здесь они
+ * только переизлучаются, чтобы страница по-прежнему брала всё про тарифы из
+ * одного файла.
+ */
+import type { PayAction, TariffId } from '@gm/shared'
+import { RESERVE_AMOUNT, TARIFF_NAMES, TARIFF_PRICES } from '@gm/shared'
+
+export type { PayAction, TariffId }
+export { RESERVE_AMOUNT }
 
 export type Tariff = {
   id: TariffId
@@ -83,10 +92,19 @@ export type Tariff = {
   accent: string
 }
 
+// Названия и цены — из `@gm/shared`, оформление — здесь. Руками числа в этот
+// массив не вписывать: правка цены должна происходить в одном месте на весь
+// проект, иначе на кнопке будет одна сумма, а в счёте другая.
 export const TARIFFS: Tariff[] = [
-  { id: 'standard', name: 'Стандарт', price: 49_900, accent: '#9FB4CC' },
-  { id: 'premium', name: 'Премиум', price: 64_900, hit: true, accent: '#6AA0FF' },
-  { id: 'vip', name: 'ВИП', price: 99_900, accent: '#FFC14A' },
+  { id: 'standard', name: TARIFF_NAMES.standard, price: TARIFF_PRICES.standard, accent: '#9FB4CC' },
+  {
+    id: 'premium',
+    name: TARIFF_NAMES.premium,
+    price: TARIFF_PRICES.premium,
+    hit: true,
+    accent: '#6AA0FF',
+  },
+  { id: 'vip', name: TARIFF_NAMES.vip, price: TARIFF_PRICES.vip, accent: '#FFC14A' },
 ]
 
 /** Тариф по идентификатору. Падает громко: опечатка в ключе — ошибка раскладки. */
@@ -404,17 +422,8 @@ export const PAY_PROVIDER = 'Prodamus'
  * Иерархия взята из заливки ячеек таблицы: «Оплатить полностью» — самая
  * яркая, «Забронировать» светлее, три ссылки — самые тихие.
  */
-export type PayAction = 'full' | 'reserve'
-
-/**
- * Сумма брони. Числом, а не внутри подписи кнопки: она встречается в трёх
- * местах — подпись кнопки, лист оплаты («внесёте сейчас») и расчёт остатка,
- * — и три копии одного числа рано или поздно разойдутся. Величина из ТЗ:
- * «бронь места за 10 000 рублей» (слайд 8, ответ 2) и «ЗАБРОНИРОВАТЬ ЗА
- * 10 000 ₽» в таблице тарифов.
- */
-export const RESERVE_AMOUNT = 10_000
-
+// `PayAction` и `RESERVE_AMOUNT` объявлены в `@gm/shared` и переизлучены в
+// начале файла: сумма брони нужна и подписи кнопки, и счёту на сервере.
 export const PAY_BUTTONS: { action: PayAction; label: string }[] = [
   { action: 'full', label: 'Оплатить полностью' },
   { action: 'reserve', label: `Забронировать за ${formatPrice(RESERVE_AMOUNT)}` },
