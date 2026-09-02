@@ -1,0 +1,89 @@
+# Стенд целиком: Postgres, API, Caddy.
+#
+# Локально:
+#   docker compose up -d db          # только база, API запускать через npm
+#   docker compose up -d             # всё вместе, но сначала npm run build
+#
+# На сервере образы не собираются, а забираются готовыми из реестра:
+# на одном ядре `npm ci` и `vite build` — это минуты и своп.
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: gm
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-gm_local}
+      POSTGRES_DB: gm
+      # Иначе Postgres инициализирует базу с локалью образа, и сортировка
+      # русских строк будет отличаться от ожидаемой.
+      POSTGRES_INITDB_ARGS: '--locale-provider=icu --icu-locale=ru-RU'
+      TZ: UTC
+    # Дефолтный конфиг рассчитан на другую машину. Значения — под 2 ГБ, где
+    # кроме базы живут API и Caddy.
+    command: >
+      postgres
+      -c shared_buffers=256MB
+      -c effective_cache_size=768MB
+      -c max_connections=20
+      -c work_mem=8MB
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      # Наружу не открываем: доступ к базе — только через SSH-туннель.
+      - '127.0.0.1:5432:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U gm -d gm']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://gm:${POSTGRES_PASSWORD:-gm_local}@db:5432/gm
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      TZ: UTC
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      # Только для локальной проверки. На сервере запросы идут через Caddy,
+      # и эту строку надо убрать.
+      - '127.0.0.1:3000:3000'
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # Собранный фронтенд. Перед запуском: npm run build
+      - ./apps/web/dist:/srv:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  db-data:
+  caddy-data:
+  caddy-config:

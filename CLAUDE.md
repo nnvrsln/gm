@@ -76,8 +76,15 @@ npm run build      # typecheck, затем vite build
 
 ```bash
 npm run dev -w @gm/web
-npm install fastify -w @gm/api      # поставить зависимость только серверу
+npm run dev -w @gm/api              # tsx watch, порт 3000
+npm run db:generate -w @gm/api      # миграция из схемы, кладётся в apps/api/drizzle
+npm run db:migrate -w @gm/api       # накатить миграции
+npm install fastify -w @gm/api      # зависимость только серверу
 ```
+
+Базу для разработки поднимает `docker compose up -d db` (Docker на машине владельца
+пока не установлен). Окружение — из `.env`, образец в `.env.example`; без
+`DATABASE_URL` сервер намеренно не стартует и печатает, чего не хватает.
 
 Тестов в проекте пока нет. `npm run typecheck` — единственная проверка перед
 коммитом; она обязана быть зелёной, поскольку `build` её вызывает.
@@ -102,8 +109,8 @@ git -c safe.directory=C:/Users/Ruslan/Desktop/gm <команда>
 
 ```
 apps/web/       ← Vite + React, весь фронтенд
+apps/api/       ← Fastify: config, plugins, modules/<имя>/, db
 packages/shared/← @gm/shared: цены, TariffId, PayAction
-apps/api/       ← Fastify, появится следующим шагом
 ```
 
 **`@gm/shared` — единственный источник цен.** Числа 49 900 / 64 900 / 99 900 и
@@ -113,9 +120,10 @@ apps/api/       ← Fastify, появится следующим шагом
 одну сумму на кнопке и другую в счёте.
 
 **Сборки у `packages/shared` нет и заводить её не нужно.** Пакет отдаёт исходный
-TypeScript: Vite обрабатывает workspace-пакеты как исходники. Серверу это
-накладывает одно условие — в разработке запускать через `tsx`, а в прод собирать
-бандлом (Node сам TypeScript из `node_modules` не разбирает).
+TypeScript: Vite обрабатывает workspace-пакеты как исходники. Отсюда следует, что
+API запускается через `tsx` — и в разработке, и в проде (Node сам TypeScript из
+`node_modules` не разбирает). Это стоит около ста миллисекунд на старте и держит
+код в обеих средах одинаковым; так же устроен `apps/api/Dockerfile`.
 
 **Сборка фронта — одна страница.** `apps/web/index.html` → `src/main.tsx` →
 `App.tsx`. Макетные страницы, на которых примерялись подачи слайдов, удалены; если
