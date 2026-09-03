@@ -15,7 +15,7 @@ import { PaySheet, type PayTarget } from './PaySheet'
 import { StarIcon, WhatsAppIcon } from './icons'
 
 /**
- * Слайд 6 ТЗ «Выбери свой тариф» — три тарифа и восемнадцать позиций сетки.
+ * Слайд 6 ТЗ «Выбери свой тариф» — три тарифа и шестнадцать позиций сетки.
  *
  * Подача «Столбцы» с макетной `/tariffs.html`, выбор владельца из трёх
  * (отклонены «Лестница» и «Матрица» — они остались на макетной). Устройство
@@ -66,8 +66,6 @@ import { StarIcon, WhatsAppIcon } from './icons'
  * дал. `WHATSAPP_NUMBER` пуст — ссылки рисуются, но никуда не ведут.
  * TODO (Q19): бэкенда нет. Обе кнопки оплаты открывают `PaySheet`, а
  * заглушка живёт на главной кнопке листа.
- * TODO (Q23): два вопроса заказчика к самому себе (микрогруппы в СТАНДАРТЕ,
- * живая встреча вообще) стоят в данных с флагом `pending`.
  */
 
 // Bebas инлайновым стилем, а не утилитой font-[...]: имя шрифта с пробелами
@@ -387,8 +385,9 @@ function Mark({ on, color }: { on: boolean; color: string }) {
 }
 
 /**
- * Две кнопки покупки. Иерархия — из заливки ячеек таблицы заказчика:
- * «Оплатить полностью» яркая, «Забронировать» контурная.
+ * Две кнопки покупки. Сверху «Забронировать», громче нарисована «Оплатить
+ * полностью» — порядок и вес разведены, оба берутся из `PAY_BUTTONS`
+ * (`emphasis`), и там же записано, почему они разные.
  *
  * Обе открывают `PaySheet` — лист с выбранным тарифом, суммами и условиями
  * из ТЗ. Заглушка Q19 (подпись «Скоро» при нажатии) переехала на главную
@@ -399,7 +398,7 @@ function Mark({ on, color }: { on: boolean; color: string }) {
  * .btn-hero-primary в CSS стоит flex:1.15 (это для пары в строку), и в
  * колоночном флексе базис 0% схлопнул бы кнопку по высоте.
  *
- * `accent` передаётся тем тарифам, которые **не** хит: их главная кнопка
+ * `accent` передаётся тем тарифам, которые **не** хит: их громкая кнопка
  * становится контурной в цвете тарифа, а плоская синяя заливка остаётся
  * ровно у ПРЕМИУМА. Иначе самый громкий элемент карточки у всех трёх
  * одинаковый, и «выделить хит больше всех» ломается именно на нём. Вернуть
@@ -418,9 +417,9 @@ function PayButtons({
 
   return (
     <div className="mt-4 grid gap-2">
-      {PAY_BUTTONS.map((button, i) => {
-        const main = i === 0
-        const tinted = main && accent
+      {PAY_BUTTONS.map((button) => {
+        const loud = button.emphasis === 'loud'
+        const tinted = loud && accent
 
         return (
           <button
@@ -435,7 +434,7 @@ function PayButtons({
                 ? { color: accent, border: `1px solid ${accent}80`, backgroundColor: `${accent}1F` }
                 : undefined
             }
-            className={`btn-hero w-full ${main ? (tinted ? '' : 'btn-hero-primary') : 'btn-hero-secondary'}`}
+            className={`btn-hero w-full ${loud ? (tinted ? '' : 'btn-hero-primary') : 'btn-hero-secondary'}`}
           >
             {button.label}
           </button>
