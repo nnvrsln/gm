@@ -1,10 +1,12 @@
 import { AudienceSection } from './components/AudienceSection'
+import { AuthoritySection } from './components/AuthoritySection'
 import { CoachSection } from './components/CoachSection'
 import { CourseBackdrop } from './components/CourseBackdrop'
 import { FaqSection } from './components/FaqSection'
 import { Hero } from './components/Hero'
 import { LearningSection } from './components/LearningSection'
 import { ProgramSection } from './components/ProgramSection'
+import { QuoteSection } from './components/QuoteSection'
 import { SiteFooter } from './components/SiteFooter'
 import { TariffsSection } from './components/TariffsSection'
 
@@ -61,15 +63,18 @@ export default function App() {
             так он уже переезжал из «Программы» в «Как проходит обучение», а
             оттуда сюда. */}
         <TariffsSection />
-        {/* Слайд 8 ТЗ, последняя секция страницы. Слайд 7 «Авторитет»
-            пропущен: контента для него нет, и владелец велел обойти его
-            стороной. Появится — встанет между тарифами и FAQ.
-            Сход в bg-pitch перед подвалом рисует у себя внизу.
-
-            Слайд 9 «Финальная цитата» снят со страницы 01.09 («убери пока
-            этот блок») и удалён при чистке репозитория. Как он был устроен и
-            что придётся вернуть вместе с ним — в docs/tz/05-STATE.md. */}
+        {/* Слайд 7 ТЗ. Контент (четыре цитаты) пришёл 06.09.2026 — до этого
+            слайд был пропущен, делать было не из чего (Q20). Встал ровно там,
+            где и было условлено: между тарифами и FAQ. Своего фона нет, сход
+            в bg-pitch ей не нужен — секция не последняя. */}
+        <AuthoritySection />
         <FaqSection />
+        {/* Слайд 9 ТЗ, последняя секция страницы. Был свёрстан 01.09 и снят
+            («убери пока этот блок»), потому что текста от заказчика не было
+            и стоял временный с gadjiev.pro. 06.09.2026 заказчик прислал свою
+            цитату и снимок — секция вернулась, уже со своим контентом.
+            Сход в bg-pitch уехал сюда из FAQ: он всегда у последней секции. */}
+        <QuoteSection />
         <CourseBackdrop />
       </div>
       {/* Формы заявки на странице нет: в ТЗ её нет ни в одном слайде,

@@ -3,11 +3,47 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Футбол. Управление подготовкой</title>
+
+    <!-- Заголовок и описание собраны из дословных строк заказчика: имя
+         академии с первого экрана и продуктовое обещание оттуда же.
+         Прежние («Предзапись на авторский онлайн-курс… о футбольном
+         мышлении, тактике и тренерских решениях») остались от лендинга
+         предзаписи и обещали в выдаче не то, что на странице. -->
+    <title>Онлайн-академия футбольных тренеров Гаджи Гаджиева</title>
     <meta
       name="description"
-      content="Предзапись на авторский онлайн-курс Гаджи Гаджиева о футбольном мышлении, тактике и тренерских решениях."
+      content="Практическая система подготовки от Гаджиева Гаджи Муслимовича: управление нагрузкой, подбор упражнений, развитие индивидуального мастерства и моделирование игры. Старт 1 ноября, обучение два месяца."
     />
+
+    <!-- %SITE_URL% подставляется при сборке (vite.config.ts). Домена от
+         заказчика пока нет, по умолчанию адрес деплоя. -->
+    <link rel="canonical" href="%SITE_URL%/" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+
+    <!-- Превью ссылки. Для этого лендинга не мелочь: конверсия идёт через
+         WhatsApp, и ссылку будут пересылать в мессенджерах — без этих тегов
+         там показывается пустая карточка. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Онлайн-академия футбольных тренеров Гаджи Гаджиева" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:url" content="%SITE_URL%/" />
+    <meta property="og:title" content="Онлайн-академия футбольных тренеров Гаджи Гаджиева" />
+    <meta
+      property="og:description"
+      content="Практическая система подготовки: управление нагрузкой, подбор упражнений, развитие индивидуального мастерства и моделирование игры. Старт 1 ноября."
+    />
+    <meta property="og:image" content="%SITE_URL%/og-cover.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Гаджи Гаджиев — онлайн-академия футбольных тренеров" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Онлайн-академия футбольных тренеров Гаджи Гаджиева" />
+    <meta
+      name="twitter:description"
+      content="Практическая система подготовки: управление нагрузкой, подбор упражнений, развитие индивидуального мастерства и моделирование игры. Старт 1 ноября."
+    />
+    <meta name="twitter:image" content="%SITE_URL%/og-cover.jpg" />
 
     <!-- Иконки -->
     <link rel="icon" href="/favicon.ico" sizes="any" />
@@ -20,7 +56,11 @@
     <!-- Шрифты локальные (src/assets): Bebas Neue Cyrillic, Onest, Autograf.
          Ссылка на Manrope из Google Fonts убрана при чистке 01.09 — этот
          шрифт на странице не использовался, а запрос к CDN висел на каждой
-         загрузке. -->
+         загрузке.
+
+         Микроразметка Schema.org (Course + FAQPage) вставляется сюда при
+         сборке плагином из vite.config.ts — она собирается из тех же
+         данных, что кормят страницу, чтобы не разъехаться с ней. -->
   </head>
   <body>
     <div id="root"></div>

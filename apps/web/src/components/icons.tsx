@@ -425,29 +425,6 @@ export function TeamIcon(props: IconProps) {
   )
 }
 
-/** «Разработка тренировок в микрогруппах» — три узла одной схемы. */
-export function MicrogroupIcon(props: IconProps) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.6"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      {...props}
-    >
-      <circle cx="6.2" cy="7.4" r="2.2" />
-      <circle cx="17.8" cy="7.4" r="2.2" />
-      <circle cx="12" cy="17.6" r="2.2" />
-      <path d="M8.4 7.4h7.2" />
-      <path d="M7.3 9.3l3.6 6.4" />
-      <path d="M16.7 9.3l-3.6 6.4" />
-    </svg>
-  )
-}
-
 /** NANOFOOTBALL — конструктор: сетка блоков и плюс. */
 export function ConstructorIcon(props: IconProps) {
   return (
@@ -740,6 +717,19 @@ export function ManagerIcon(props: IconProps) {
       <path d="m21 3 1 11h-2" />
       <path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3" />
       <path d="M3 4h8" />
+    </svg>
+  )
+}
+
+/**
+ * Кавычка «Авторитета» (слайд 7) — классический двойной штрих газетной
+ * цитаты, залитый, а не обводкой: рядом с мелким текстом карточки тонкий
+ * контур на 28px терялся бы, а плашка читается сразу.
+ */
+export function QuoteIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
+      <path d="M3.5 9.6c0-3 2-5.2 5.4-5.9l.6 1.7c-2.1.7-3.2 1.9-3.4 3.6.3-.1.6-.2 1-.2 1.7 0 2.9 1.2 2.9 3 0 1.9-1.4 3.2-3.2 3.2-2 0-3.3-1.6-3.3-3.8v-1.6zM13 9.6c0-3 2-5.2 5.4-5.9l.6 1.7c-2.1.7-3.2 1.9-3.4 3.6.3-.1.6-.2 1-.2 1.7 0 2.9 1.2 2.9 3 0 1.9-1.4 3.2-3.2 3.2-2 0-3.3-1.6-3.3-3.8v-1.6z" />
     </svg>
   )
 }

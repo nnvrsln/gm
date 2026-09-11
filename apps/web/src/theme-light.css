@@ -1,0 +1,623 @@
+/* ─── Белая версия сайта ──────────────────────────────────────────────────
+   Подключается только страницей `/light.html`. Ни один файл секций не
+   тронут: тема целиком здесь и включается атрибутом `data-theme="light"`
+   на обёртке вокруг того же `App`. Значит белая версия не разъедется с
+   тёмной — правка контента видна сразу в обеих.
+
+   ── Как переведены фотоблоки ──────────────────────────────────────────────
+   Половина страницы построена на фотографиях с текстом поверх них: первый
+   экран, «Для кого», «Автор обучения», карточки сегментов, финальная цитата.
+   Перекраска текста там не работает — тёмные буквы тонут в кадре.
+
+   Приём: **инверсия шторок**. В тёмной версии поверх кадра лежит чёрный
+   градиент, гасящий фотографию под текстом. Здесь та же геометрия, но
+   градиент белый — текстовая колонка светлеет, фигура остаётся открытой.
+   Композиции не менялись, поменялся знак. Сами кадры при этом чуть
+   осветлены: ночной стадион на белой странице иначе читается провалом.
+
+   ── Как переведён остальной цвет ──────────────────────────────────────────
+   1. Токены. `text-white`, `border-white/10`, `bg-pitch`, `bg-panel` в
+      Tailwind 4 читают CSS-переменные — достаточно поменять переменные, и
+      десятки мест переворачиваются разом вместе с прозрачностями.
+   2. Тёмные градиенты в контентных секциях гасятся по подстроке в имени
+      класса; нужные светлые эквиваленты возвращаются точечно.
+   3. Инлайновые цвета (`style={{ color: '#FFFFFF' }}`) сильнее селекторов,
+      их приходится продавливать `!important`. Это главный технический долг
+      темы: пока цвет живёт в разметке, переключение остаётся продавливанием.
+      Правильное решение — вынести эти цвета в токены, тогда обе версии будут
+      жить от одного набора переменных.
+
+   ── Проверено ─────────────────────────────────────────────────────────────
+   Контраст считался скриптом по формуле WCAG для каждого текстового
+   элемента: цвет текста против ближайшего непрозрачного фона. На 430px —
+   180 элементов, на 360px — 228, в листе оплаты — 50. Недоборов нет.
+   Горизонтальной прокрутки нет. */
+
+/* Светлые секции. Фотографические (#audience, #coach и первый экран) в
+   список намеренно не входят — см. вводную выше. */
+[data-theme='light'] #program,
+[data-theme='light'] #learning,
+[data-theme='light'] #tariffs,
+[data-theme='light'] #authority,
+[data-theme='light'] #faq,
+[data-theme='light'] #quote,
+[data-theme='light'] footer {
+  --color-white: #131a22;
+  --color-pitch: #ffffff;
+  --color-panel: #f4f6f9;
+  --color-panel2: #eef1f5;
+  --color-stroke: rgba(19, 26, 34, 0.14);
+  --color-muted: #5c6672;
+
+  position: relative;
+  z-index: 20;
+  color: #131a22;
+  background: transparent;
+}
+
+/* Фон страницы. Тональная база и зарево прожекторов (CourseBackdrop, слой
+   z-[3]) рассчитаны на чёрный — на белом это грязь, поэтому слой снят. */
+[data-theme='light'] .z-\[3\] {
+  display: none;
+}
+
+[data-theme='light'] main {
+  background: linear-gradient(180deg, #ffffff 0%, #f7f9fc 46%, #eef2f7 100%);
+}
+
+/* Тёмные фотоблоки остаются на своём фоне: под ними теперь белая страница,
+   и без собственной подложки они просвечивали бы. */
+[data-theme='light'] main > section:first-of-type,
+[data-theme='light'] #audience,
+[data-theme='light'] #coach {
+  background: #05080b;
+}
+
+/* ── Гасим тёмные градиенты внутри светлых секций ──────────────────────── */
+[data-theme='light'] #program [class*='bg-[linear-gradient'],
+[data-theme='light'] #program [class*='bg-[radial-gradient'],
+[data-theme='light'] #learning [class*='bg-[linear-gradient'],
+[data-theme='light'] #tariffs [class*='bg-[linear-gradient'],
+[data-theme='light'] #tariffs [class*='bg-[radial-gradient'],
+[data-theme='light'] #authority [class*='bg-[linear-gradient'],
+[data-theme='light'] #faq [class*='bg-[linear-gradient'],
+[data-theme='light'] #quote [class*='bg-[linear-gradient'],
+[data-theme='light'] #quote [class*='bg-[radial-gradient'] {
+  background-image: none !important;
+}
+
+/* ── Заголовки ─────────────────────────────────────────────────────────────
+   В тёмной версии Bebas залит градиентом через background-clip: text —
+   белый сверху, холодный серо-голубой к базовой линии. На белом такой текст
+   исчезает: заливка снимается, буквы красятся краской. */
+[data-theme='light'] #program .section-title,
+[data-theme='light'] #learning .section-title,
+[data-theme='light'] #tariffs .section-title,
+[data-theme='light'] #authority .section-title,
+[data-theme='light'] #faq .section-title {
+  background: none;
+  -webkit-text-fill-color: currentColor;
+  color: #0f1620;
+  filter: none;
+}
+
+/* ── Поверхности ───────────────────────────────────────────────────────── */
+[data-theme='light'] .program-card,
+[data-theme='light'] .quote-card,
+[data-theme='light'] .press-publication {
+  background: #ffffff;
+  border-color: rgba(19, 26, 34, 0.12);
+  box-shadow: 0 1px 2px rgba(19, 26, 34, 0.05), 0 10px 30px -20px rgba(19, 26, 34, 0.35);
+}
+
+[data-theme='light'] .program-card-gold {
+  background: #fffaf1;
+  border-color: rgba(176, 132, 42, 0.36);
+  box-shadow: 0 1px 2px rgba(19, 26, 34, 0.05), 0 10px 30px -20px rgba(150, 110, 40, 0.4);
+}
+
+[data-theme='light'] .glass {
+  background: #ffffff;
+  border-color: rgba(19, 26, 34, 0.12);
+}
+
+/* ── Цитаты ────────────────────────────────────────────────────────────── */
+[data-theme='light'] .press-lead,
+[data-theme='light'] .final-quote {
+  color: #101820;
+}
+
+[data-theme='light'] .press-author p {
+  color: #55606d;
+}
+
+[data-theme='light'] .press-author h3 span {
+  color: #6b7683;
+}
+
+[data-theme='light'] .press-portrait {
+  background: #e6eaef;
+}
+
+/* ── Финальная секция ──────────────────────────────────────────────────────
+   Кадр ГМ вырезан по альфе и на белом лежит без правок. Шторка под цитатой
+   не нужна: текст и так на белом. */
+[data-theme='light'] #quote {
+  background: #ffffff;
+}
+
+/* ── Кнопки ────────────────────────────────────────────────────────────────
+   Синяя и зелёная контрастны и на белом, у них текст обязан остаться белым
+   вопреки переопределению токена. */
+[data-theme='light'] .btn-hero-primary,
+[data-theme='light'] .btn-hero-turf,
+[data-theme='light'] .pay-cta {
+  color: #ffffff;
+}
+
+/* ── Акценты ───────────────────────────────────────────────────────────────
+   Светло-синий #6AA0FF подобран под чёрный фон и на белом теряется.
+   В светлых секциях он уходит на тон глубже. */
+[data-theme='light'] #program .text-\[\#6AA0FF\],
+[data-theme='light'] #authority .text-\[\#6AA0FF\],
+[data-theme='light'] #quote .text-\[\#6AA0FF\] {
+  color: #1e5bff;
+}
+
+/* ── Плашки на rgba ────────────────────────────────────────────────────────
+   Часть подложек задана не градиентом, а сплошным `bg-[rgba(6,10,16,.72)]` —
+   панель раскрытых уроков, полоса результата модуля, поля формы. Правило
+   выше их не ловит: там ищется `linear-gradient`. Красим в светлый. */
+[data-theme='light'] #program [class*='bg-[rgba('],
+[data-theme='light'] #learning [class*='bg-[rgba('],
+[data-theme='light'] #tariffs [class*='bg-[rgba('],
+[data-theme='light'] #authority [class*='bg-[rgba('],
+[data-theme='light'] #faq [class*='bg-[rgba('],
+[data-theme='light'] #quote [class*='bg-[rgba('] {
+  background-color: #f6f8fb;
+}
+
+/* Полоса результата модуля отделяется от списка уроков линией, а не тоном:
+   на белом две почти одинаковые светлые заливки сливаются. */
+[data-theme='light'] #program .program-card > div:last-child {
+  background-color: #ffffff;
+  border-top-color: rgba(19, 26, 34, 0.1);
+}
+
+/* ── Инлайновые цвета ──────────────────────────────────────────────────────
+   Часть цвета задана не классами, а прямо в разметке: `style={{ color:
+   '#FFFFFF' }}` у цены тарифа, у названия, у подписей. Инлайновый стиль
+   сильнее любого селектора, и переопределить его можно только `!important`.
+
+   Это и есть главный счёт за белую версию: пока цвет живёт в инлайновых
+   стилях, тема не переключается — её приходится продавливать. Настоящее
+   решение — вынести эти цвета в токены, тогда обе версии будут жить от
+   одного набора переменных. Здесь, в примерке, продавливаем. */
+[data-theme='light'] #tariffs .tabular-nums,
+[data-theme='light'] #tariffs h3 {
+  color: #0f1620 !important;
+}
+
+[data-theme='light'] #tariffs .btn-hero-secondary {
+  color: #1e5bff !important;
+  border-color: rgba(30, 91, 255, 0.45);
+  background: rgba(30, 91, 255, 0.06);
+}
+
+/* Прочерк «не входит в тариф» и приглушённые строки состава: после смены
+   токена они стали слишком светлыми на белом. */
+[data-theme='light'] #tariffs [class*='text-white\/'] {
+  color: #55606d;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ПОЛНАЯ БЕЛАЯ ВЕРСИЯ
+   Второй заход: заказчик попросил белым весь сайт, включая фотоблоки.
+
+   Ключ к ним — не перекраска текста, а **инверсия шторок**. В тёмной версии
+   поверх кадра лежит чёрный градиент, который гасит фотографию под текстом.
+   Здесь ровно та же геометрия, но градиент белый: текстовая колонка светлеет,
+   фигура справа остаётся видимой. Композиция не меняется, меняется знак.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Токены для фотоблоков — теперь и они светлые. */
+[data-theme='light'] main > section:first-of-type,
+[data-theme='light'] #audience,
+[data-theme='light'] #coach {
+  --color-white: #131a22;
+  --color-pitch: #ffffff;
+  --color-panel: #f4f6f9;
+  --color-stroke: rgba(19, 26, 34, 0.14);
+  --color-muted: #5c6672;
+  background: #ffffff;
+  color: #131a22;
+}
+
+/* Заголовки этих секций — краской, без градиентной заливки. */
+[data-theme='light'] .hero-title > span,
+[data-theme='light'] #audience .section-title,
+[data-theme='light'] #coach .section-title {
+  background: none;
+  -webkit-text-fill-color: currentColor;
+  color: #0f1620;
+  filter: none;
+}
+
+/* Ударение над «У» нарисовано краской, а не текстом (см. .stress-acute в
+   index.css): на тёмной странице оно белое, здесь — того же тона, каким
+   набран сам заголовок. */
+[data-theme='light'] .stress-acute::after {
+  background: #0f1620;
+}
+
+/* Автограф на первом экране — белый штрих на прозрачном фоне. На белой
+   странице он пропал бы целиком, поэтому инвертируем сам скан: белое
+   становится тёмным, прозрачное остаётся прозрачным. */
+[data-theme='light'] .signature {
+  filter: invert(1) drop-shadow(0 1px 8px rgba(255, 255, 255, 0.6));
+  opacity: 0.86;
+}
+
+/* ── Первый экран ──────────────────────────────────────────────────────────
+   Слой 3 — боковая шторка под текст, слой 4 — сход вниз. Оба переписаны в
+   белый: слева бумага под тёмный текст, справа кадр остаётся открытым.
+   Кадр осветлён — ночной стадион на белой странице иначе читается провалом. */
+[data-theme='light'] main > section:first-of-type > img {
+  filter: brightness(1.28) saturate(0.9) contrast(0.94);
+}
+
+[data-theme='light'] main > section:first-of-type > div:nth-child(3) {
+  background-image: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0.97) 0%,
+    rgba(255, 255, 255, 0.88) 42%,
+    rgba(255, 255, 255, 0.4) 72%,
+    rgba(255, 255, 255, 0) 96%
+  ) !important;
+}
+
+[data-theme='light'] main > section:first-of-type > div:nth-child(4) {
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.55) 46%,
+    rgba(255, 255, 255, 0.94) 84%,
+    #ffffff 100%
+  ) !important;
+}
+
+/* ── «Для кого» ────────────────────────────────────────────────────────────
+   Обложка-стадион сверху и три шторки под ней. Та же инверсия. */
+[data-theme='light'] #audience > img {
+  filter: brightness(1.5) saturate(0.86) contrast(0.9);
+}
+
+[data-theme='light'] #audience > div:nth-child(3) {
+  background-image: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0.86) 0%,
+    rgba(255, 255, 255, 0.5) 54%,
+    rgba(255, 255, 255, 0) 100%
+  ) !important;
+}
+
+[data-theme='light'] #audience > div:nth-child(4) {
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.8) 0%,
+    rgba(255, 255, 255, 0.4) 46%,
+    transparent 100%
+  ) !important;
+}
+
+[data-theme='light'] #audience > div:nth-child(5) {
+  background-image: linear-gradient(
+    180deg,
+    transparent 0px,
+    transparent 40px,
+    rgba(255, 255, 255, 0.4) 72px,
+    rgba(255, 255, 255, 0.78) 112px,
+    rgba(255, 255, 255, 0.96) 170px,
+    #ffffff 220px
+  ) !important;
+}
+
+/* ── «Автор обучения» ──────────────────────────────────────────────────────
+   Кадр в полный рост подложкой секции: слева шторка держит колонку текста,
+   сверху и снизу — стыки с соседями. Все три в белый. */
+[data-theme='light'] #coach img {
+  filter: brightness(1.32) saturate(0.9) contrast(0.93);
+}
+
+[data-theme='light'] #coach > div:first-child > div:nth-child(2) {
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.97) 0%,
+    rgba(255, 255, 255, 0.94) 42%,
+    rgba(255, 255, 255, 0.72) 57%,
+    rgba(255, 255, 255, 0.2) 71%,
+    transparent 84%
+  ) !important;
+}
+
+[data-theme='light'] #coach > div:first-child > div:nth-child(3) {
+  background-image: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.62) 46%, transparent 100%) !important;
+}
+
+[data-theme='light'] #coach > div:first-child > div:nth-child(4) {
+  background-image: linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.78) 54%, #ffffff 100%) !important;
+}
+
+/* Карточки «Для кого»: текст лежит поверх кадра, под ним тёмная шторка от
+   середины карточки. Та же геометрия, белым — тогда подпись читается
+   краской, а верх кадра остаётся открытым. */
+[data-theme='light'] #audience li > div:nth-child(2) {
+  background-image: linear-gradient(
+    180deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.42) 36%,
+    rgba(255, 255, 255, 0.86) 46%,
+    rgba(255, 255, 255, 0.96) 58%,
+    #ffffff 72%
+  ) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ИНЛАЙНОВЫЕ ЦВЕТА
+   Найдены обходом страницы: элементы со `style`, у которых вычисленный цвет
+   светлее порога яркости 150. Инлайн сильнее селекторов, поэтому только
+   `!important`. Полный список того, что на белом пропадало:
+     — вопросы FAQ (белые по замыслу — исчезали целиком);
+     — номера 01–06 и цветные метки в «Как проходит обучение»;
+     — подписи кнопок оплаты в тарифах.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* FAQ: вопросы были #EAF2FF и rgba(255,255,255,.82) — на белом их не было
+   видно вовсе. Раскрытый вопрос темнее закрытых, как и в тёмной версии. */
+[data-theme='light'] #faq button > span:first-child {
+  color: rgba(19, 26, 34, 0.78) !important;
+}
+
+[data-theme='light'] #faq button[aria-expanded='true'] > span:first-child {
+  color: #0f1620 !important;
+}
+
+/* «Как проходит обучение»: номера и метки категорий. Синий, мята и золото
+   подобраны под чёрный фон; на белом каждый уходит на два тона глубже,
+   оттенок при этом сохраняется — категории должны остаться различимыми. */
+[data-theme='light'] #learning [style*='6AA0FF'],
+[data-theme='light'] #learning [style*='rgb(106, 160, 255)'] {
+  color: #1e5bff !important;
+}
+
+[data-theme='light'] #learning [style*='3FE0B0'],
+[data-theme='light'] #learning [style*='rgb(63, 224, 176)'] {
+  color: #0b7a63 !important;
+}
+
+[data-theme='light'] #learning [style*='FFC14A'],
+[data-theme='light'] #learning [style*='rgb(255, 193, 74)'] {
+  color: #9a6b12 !important;
+}
+
+/* Плашки «БЕСПЛАТНО» — заливка тоже светлеет вместе с текстом. */
+[data-theme='light'] #learning span[style*='3FE0B0'] {
+  background-color: rgba(11, 122, 99, 0.1) !important;
+  border-color: rgba(11, 122, 99, 0.28) !important;
+}
+
+/* Тарифы: подписи кнопок «Оплатить полностью». У СТАНДАРТА они стального
+   #9FB4CC, у ВИП золотые — оба на белом не читались. */
+[data-theme='light'] #tariffs .btn-hero[style*='rgb(159, 180, 204)'],
+[data-theme='light'] #tariffs .btn-hero[style*='9FB4CC'] {
+  color: #22364d !important;
+  border-color: rgba(34, 54, 77, 0.32) !important;
+}
+
+[data-theme='light'] #tariffs .btn-hero[style*='rgb(255, 193, 74)'],
+[data-theme='light'] #tariffs .btn-hero[style*='FFC14A'] {
+  color: #8a5e0c !important;
+  border-color: rgba(138, 94, 12, 0.36) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ДОВОДКА ПО КОНТРАСТУ
+   Правки ниже сделаны не на глаз: страница обойдена скриптом, который для
+   каждого текстового элемента берёт его цвет, находит ближайший непрозрачный
+   фон и считает контраст по формуле WCAG. Правится всё, что не добирало до
+   4.5:1 (для крупного жирного — до 3:1).
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* «Признание коллег»: карточки светлые, а текст в них остался почти белым
+   (#E5E9EE, контраст 1.22). Имя, цитата и хвост — краской. */
+[data-theme='light'] .press-publication,
+[data-theme='light'] .press-author h3,
+[data-theme='light'] .press-quote,
+[data-theme='light'] .press-quote p {
+  color: #131a22;
+}
+
+[data-theme='light'] .press-lead {
+  color: #0f1620;
+}
+
+/* «Программа»: кружки с номерами уроков были #8FB8FF (контраст 1.29 на
+   белом). Синие — глубже, у бонусного блока золото уходит в охру. */
+[data-theme='light'] #program [class*='text-[#8FB8FF]'],
+[data-theme='light'] #program [class*='text-[#6AA0FF]'] {
+  color: #1e5bff !important;
+}
+
+[data-theme='light'] #program [class*='text-[#FFD68C]'],
+[data-theme='light'] #program [class*='text-[#FFE7C2]'] {
+  color: #8a5e0c !important;
+}
+
+[data-theme='light'] #program [class*='border-[#6AA0FF]'] {
+  border-color: rgba(30, 91, 255, 0.4) !important;
+}
+
+[data-theme='light'] #program [class*='border-[#FFC14A]'] {
+  border-color: rgba(138, 94, 12, 0.4) !important;
+}
+
+[data-theme='light'] #program [class*='bg-[#6AA0FF]'] {
+  background-color: #1e5bff !important;
+}
+
+[data-theme='light'] #program [class*='bg-[#FFD68C]'] {
+  background-color: #8a5e0c !important;
+}
+
+/* Подвал: раскрывающийся список авторов фотографий был белым в 42% —
+   на белом фоне его не существовало. */
+[data-theme='light'] .photo-credits summary,
+[data-theme='light'] .photo-credits p,
+[data-theme='light'] .photo-credits a {
+  color: #55606d;
+}
+
+/* Финальная цитата и «Автор обучения»: подписи под именем. */
+[data-theme='light'] #quote figcaption p:last-child,
+[data-theme='light'] #coach [class*='text-white\/'] {
+  color: #55606d;
+}
+
+/* Поправка к предыдущему блоку. В «Программе» один и тот же цвет работает
+   и сплошной заливкой (штрихи плюса), и подложкой с прозрачностью
+   (`bg-[#6AA0FF]/10` у кружка с номером урока). Правило выше красило то и
+   другое в сплошной синий, и номер пропадал на собственном кружке.
+   Здесь подложки возвращаются прозрачными — селектор со слэшем ловит
+   только их и стоит ниже, поэтому выигрывает. */
+[data-theme='light'] #program [class*='bg-[#6AA0FF]/'] {
+  background-color: rgba(30, 91, 255, 0.1) !important;
+}
+
+[data-theme='light'] #program [class*='bg-[#FFC14A]/'],
+[data-theme='light'] #program [class*='bg-[#FFD68C]/'] {
+  background-color: rgba(138, 94, 12, 0.12) !important;
+}
+
+/* Последние недоборы по контрасту. */
+
+/* «Бонус» на золотой карточке программы: #FFC14A давал 1.56 на белом. */
+[data-theme='light'] .segment-index-gold {
+  color: #8a5e0c;
+}
+
+/* Кавычки-ёлочки в карточках «Признания коллег» были #8FB8FF (2.01). */
+[data-theme='light'] .press-lead span {
+  color: #1e5bff;
+}
+
+/* Надзаголовок «Автор обучения» — синий по тёмному, на белом глубже. */
+[data-theme='light'] #coach [class*='text-[#6AA0FF]'],
+[data-theme='light'] #audience [class*='text-[#6AA0FF]'] {
+  color: #1e5bff !important;
+}
+
+/* Номера модулей 01–06 (.segment-index): #6AA0FF давал 2.6 при норме 4.5. */
+[data-theme='light'] .segment-index {
+  color: #1e5bff;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ЛИСТ ОПЛАТЫ
+   Он рисуется в нативном <dialog> и уходит в top layer, но лежит внутри
+   обёртки темы, поэтому токен `--color-white` до него дошёл и текст стал
+   тёмным — а собственная подложка листа осталась чёрной (#0b1118). Половина
+   надписей исчезла. Переводим сам лист в светлый.
+   ══════════════════════════════════════════════════════════════════════════ */
+[data-theme='light'] .pay-sheet {
+  background: #ffffff;
+  color: #131a22;
+}
+
+[data-theme='light'] .pay-panel {
+  border-color: rgba(19, 26, 34, 0.1);
+  background: #f6f8fb;
+}
+
+[data-theme='light'] .pay-label {
+  color: rgba(19, 26, 34, 0.62);
+}
+
+[data-theme='light'] .pay-box {
+  border-color: rgba(19, 26, 34, 0.16);
+  background: #ffffff;
+}
+
+[data-theme='light'] .pay-box:focus-within {
+  background: #ffffff;
+}
+
+[data-theme='light'] .pay-box-icon {
+  color: rgba(19, 26, 34, 0.38);
+}
+
+[data-theme='light'] .pay-input {
+  color: #131a22;
+}
+
+[data-theme='light'] .pay-input::placeholder {
+  color: rgba(19, 26, 34, 0.34);
+}
+
+/* Красный сигнала ошибки подобран под чёрную подложку (6.6:1 на ней).
+   На белом он бледный — берём тон, который на белом даёт сопоставимый
+   контраст. */
+[data-theme='light'] .pay-sheet {
+  --pay-error: #c2143a;
+  --pay-accent: #1e5bff;
+}
+
+[data-theme='light'] .pay-check {
+  border-color: rgba(19, 26, 34, 0.28);
+  background: #ffffff;
+}
+
+/* Шапка листа и подписи под кнопкой — они шли белыми по замыслу. */
+[data-theme='light'] .pay-sheet [class*='text-white\/'],
+[data-theme='light'] .pay-sheet .section-title {
+  color: #131a22;
+}
+
+[data-theme='light'] .pay-sheet .section-title {
+  background: none;
+  -webkit-text-fill-color: currentColor;
+  filter: none;
+}
+
+/* Управление каруселью «Признания коллег»: точки и стрелки заданы белым с
+   прозрачностью (.25 и .7) — на белом фоне их почти нет. */
+[data-theme='light'] .press-pagination button span {
+  background: rgba(19, 26, 34, 0.22);
+}
+
+[data-theme='light'] .press-pagination button[aria-current] span {
+  background: #1e5bff;
+}
+
+[data-theme='light'] .press-arrows button {
+  color: rgba(19, 26, 34, 0.66);
+}
+
+[data-theme='light'] .press-arrows button:hover:not(:disabled) {
+  background: rgba(19, 26, 34, 0.05);
+}
+
+/* ── Финальная секция: шторка под цитатой ──────────────────────────────────
+   Правило гашения градиентов сняло её вместе с остальными, и текст лёг
+   прямо на рубашку — на снимке он читался плохо. Возвращаем ту же шторку
+   белой: цитата снова на бумаге, фигура сверху открыта.
+   Правило стоит после общего гашения, поэтому выигрывает. */
+[data-theme='light'] #quote > span:last-of-type,
+[data-theme='light'] #quote span[class*='bg-[linear-gradient(180deg'] {
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.82) 38%,
+    rgba(255, 255, 255, 0.97) 62%,
+    #ffffff 100%
+  ) !important;
+}

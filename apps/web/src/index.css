@@ -64,17 +64,6 @@
   font-display: swap;
 }
 
-/* Autograf — рукописный шрифт под автограф. Кириллицы в нём нет, поэтому
-   подпись набирается латинской транслитерацией. Лицензия в файле шрифта:
-   personal use only, для коммерческого использования нужна платная. */
-@font-face {
-  font-family: "Autograf";
-  src: url("./assets/autograf.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
 @layer base {
   :root {
     color-scheme: dark;
@@ -181,13 +170,14 @@
 
   /* Автограф. Наклон у шрифта свой, добавляем совсем немного — росчерк на
      фото никогда не лежит ровно по базовой линии макета. */
+  /* Автограф — скан, присланный заказчиком: белый штрих на прозрачном фоне
+     (assets/signature.webp). До 11.09.2026 здесь была латиница шрифтом
+     Autograf, отсюда прежние font-family и color; у картинки красить нечего,
+     поэтому прозрачность берёт opacity, а тень — drop-shadow по штриху, а не
+     по прямоугольнику. Наклон не наводим: в скане он свой. */
   .signature {
-    font-family: "Autograf", "Segoe Script", cursive;
-    font-weight: 400;
-    color: rgba(255, 255, 255, 0.82);
-    transform: rotate(-2deg);
-    transform-origin: left center;
-    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.55);
+    opacity: 0.82;
+    filter: drop-shadow(0 1px 10px rgba(0, 0, 0, 0.55));
   }
 
   /* ── Кнопки первого экрана ────────────────────────────────────────────
@@ -395,7 +385,10 @@
   /* Заливка градиентом по тексту: сверху чистый белый, к базовой линии уходит
      в холодный серо-голубой — буквы получают объём вместо плоской заливки.
      text-shadow по прозрачному тексту не работает, тень даём drop-shadow. */
-  .hero-title span {
+  /* Только прямой потомок: вложенный .stress-acute — инлайновый и
+     заливку с display:block наследовать не должен, иначе слово рвётся
+     на строки прямо посередине. */
+  .hero-title > span {
     display: block;
     /* см. .title-fill-fix ниже — без него у «Й» пропадает бревис */
     background: linear-gradient(180deg, #ffffff 0%, #f2f6fb 40%, #a8bcd6 100%);
@@ -404,6 +397,34 @@
     color: transparent;
     -webkit-text-fill-color: transparent;
     filter: drop-shadow(0 2px 12px rgba(0, 0, 0, 0.6));
+  }
+
+  /* Ударение над «У» в «НАУ́ЧИТЕСЬ» на первом экране. Рисуем сами, а не
+     ставим U+0301 в текст: в Bebas Neue Cyrillic комбинирующих знаков нет,
+     и браузер уводил весь кластер «у + ударение» в фолбэк — одна буква
+     приезжала из другого шрифта, шире и другой формы, чем соседние.
+     Размеры в em, чтобы знак жил при любом кегле: 0.1em — толщина штриха
+     Bebas на этом кегле, 0.19em — высота, наклон 20° повторяет наклон
+     диагоналей шрифта. Цвет задан краской, а не currentColor: текст
+     заголовка прозрачный (залит градиентом через background-clip), и
+     currentColor дал бы прозрачный знак. Белый — тот же тон, каким
+     градиент начинается наверху буквы. */
+  .stress-acute {
+    position: relative;
+  }
+
+  .stress-acute::after {
+    content: "";
+    position: absolute;
+    /* минус половина трекинга: letter-spacing висит справа от глифа и
+       смещает середину бокса относительно середины самой буквы */
+    left: calc(50% - var(--tracking-title) / 2);
+    top: 0.05em;
+    width: 0.1em;
+    height: 0.19em;
+    transform: translateX(-50%) rotate(20deg);
+    border-radius: 0.05em;
+    background: #ffffff;
   }
 
   /* Та же заливка, что у .hero-title — заголовки секций должны читаться
@@ -432,7 +453,7 @@
      а слой utilities перебивает components.
 
      0.18em взято с запасом: замеренный вылет — 0.146em (7px при кегле 48). */
-  .hero-title span,
+  .hero-title > span,
   .section-title {
     padding-top: 0.18em;
     margin-bottom: -0.18em;
@@ -998,5 +1019,100 @@
   }
   to {
     opacity: 0;
+  }
+}
+
+/* Editorial carousel: the site's dark palette with newspaper typography. */
+.press-track {
+  position: relative;
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: 20px;
+  scrollbar-width: none;
+  margin: 0 -20px;
+  padding: 24px 40px 4px 20px;
+}
+.press-track::-webkit-scrollbar { display: none; }
+.press-slide { flex: 0 0 calc(100% - 4px); min-width: 0; scroll-snap-align: start; }
+.press-publication {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 14px;
+  background: linear-gradient(125deg, rgba(20, 32, 48, .92), rgba(8, 14, 22, .94) 75%);
+  color: #e5e9ee;
+}
+.press-byline { display: grid; grid-template-columns: minmax(0, 1fr) 106px; gap: 14px; align-items: center; }
+.press-author { min-width: 0; }
+.press-author h3 { font-family: 'Bebas Neue Cyrillic', sans-serif; font-size: 31px; line-height: .98; letter-spacing: 1px; text-transform: uppercase; }
+.press-author h3 span { display: block; font-size: 23px; margin-bottom: 3px; color: #bac6d4; }
+.press-author p { margin-top: 10px; font-size: 11px; line-height: 1.45; color: #aab7c5; }
+.press-portrait { position: relative; align-self: start; height: 148px; border-radius: 6px; overflow: hidden; background: #718091; }
+/* Портреты цветные: обесцвечивание снято 06.09.2026 по просьбе владельца.
+   Кадры с Викимедиа сняты в разном свете, и общий тон им давала именно
+   чёрно-белая маска — если разнобой начнёт мешать, ровнять его надо
+   подбором самих снимков, а не фильтром поверх. */
+.press-portrait img { width: 100%; height: 100%; object-fit: cover; }
+/* Высота карточек общая — её задаёт самая длинная цитата набора, так
+   устроен горизонтальный трек. С 11.09.2026 под крупной цитатой не стало
+   мелкого хвоста (см. AuthoritySection), и разброс вырос с пары строк до
+   пяти: у Газзаева три строки, у Бердыева восемь. Поэтому свободное место
+   раскладывается вокруг цитаты поровну (margin-block: auto), а не копится
+   пустым подвалом под ней — короткая реплика читается как воздух в
+   карточке, а не как обрыв. */
+.press-quote { margin-block: auto; padding-top: 24px; }
+.press-lead { font-family: Georgia, 'Times New Roman', serif; font-size: 23px; line-height: 1.24; letter-spacing: -.025em; text-wrap: pretty; }
+.press-lead span { color: #8fb8ff; }
+.press-controls { display: flex; align-items: center; justify-content: center; gap: 4px; padding-top: 14px; }
+.press-pagination { display: flex; }
+.press-pagination button { display: grid; place-items: center; width: 24px; height: 44px; cursor: pointer; }
+.press-pagination button span { height: 6px; width: 6px; border-radius: 99px; background: rgba(255, 255, 255, .25); transition: width 180ms, background-color 180ms; }
+.press-pagination button[aria-current] span { width: 20px; background: #6aa0ff; }
+.press-arrows { display: contents; }
+.press-arrows button:first-child { order: -1; }
+.press-arrows button { display: grid; place-items: center; width: 44px; height: 44px; color: rgba(255, 255, 255, .7); border-radius: 50%; cursor: pointer; transition: background-color 180ms; }
+.press-arrows button:hover:not(:disabled) { background: rgba(255, 255, 255, .05); }
+.press-arrows button:disabled { opacity: .3; cursor: default; }
+#authority :focus-visible { outline: 2px solid #8fb8ff; outline-offset: 3px; }
+@media (max-width: 374px) {
+  .press-publication { padding: 16px; }
+  .press-byline { grid-template-columns: minmax(0, 1fr) 88px; gap: 12px; }
+  .press-portrait { height: 134px; }
+  .press-author h3 { font-size: 28px; }
+  .press-author h3 span { font-size: 21px; }
+  .press-lead { font-size: 21px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .press-pagination button span, .press-arrows button { transition: none; }
+}
+
+.photo-credits { color: rgba(255, 255, 255, .42); font-size: 11px; line-height: 1.6; }
+.photo-credits summary { cursor: pointer; padding: 12px 0; min-height: 44px; }
+.photo-credits ul { display: grid; gap: 8px; margin-bottom: 10px; }
+.photo-credits a { text-decoration: underline; text-underline-offset: 3px; }
+.photo-credits a:hover { color: white; }
+.photo-credits :focus-visible { outline: 2px solid #6aa0ff; outline-offset: 3px; }
+
+/* ─── Слайд 9 «Финальная цитата» ─────────────────────────────────────────
+   Кегль антиквы и размер фигуры на узких экранах. Колонка под цитату там
+   всего около 170px, и на 20px антиква ломается переносами по три подряд
+   («та-кая», «кото-рой», «совер-шенствоваться») — читается рвано. 18px и
+   чуть меньшая фигура возвращают строке нормальную длину.
+
+   Порог 399px, а не 374 как у соседнего блока цитат: там ужимаются плашки,
+   а здесь тесно становится раньше — уже на 375 колонка та же, что на 360. */
+@media (max-width: 399px) {
+  .final-quote {
+    font-size: 18px;
+  }
+  /* Фигура задана пикселями, а не долей: на узком экране она иначе лезет
+     на цитату боком. 560 против 640 — ровно та разница, при которой корпус
+     остаётся за строкой, а не под ней. */
+  .final-figure {
+    height: 560px;
   }
 }

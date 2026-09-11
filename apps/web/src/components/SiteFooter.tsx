@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react'
 import { LEGAL_DOCS, sellerLine } from '../data/legal'
 import { whatsappHref } from '../data/tariffs'
 import { HeartIcon } from './icons'
+import { AUTHORITY_QUOTES } from '../data/authority'
 
 /**
  * Мини-подвал: навигация по странице, правовой блок, копирайт и подпись
@@ -58,6 +59,7 @@ const FOOTER_NAV = [
   { href: '#program', label: 'Программа обучения' },
   { href: '#learning', label: 'Как проходит обучение' },
   { href: '#tariffs', label: 'Выбери свой тариф' },
+  { href: '#authority', label: 'Признание коллег' },
   { href: '#faq', label: 'Частые вопросы' },
 ]
 
@@ -139,6 +141,18 @@ export function SiteFooter() {
       </nav>
 
       {seller && <p className="mt-1 font-badge text-[10.5px] leading-[1.5] text-white/40">{seller}</p>}
+
+      <details className="photo-credits">
+        <summary>Авторы фотографий</summary>
+        <ul>
+          {AUTHORITY_QUOTES.map((item) => (
+            <li key={item.name}>
+              <a href={item.photoSource} target="_blank" rel="noreferrer">{item.name} — {item.photoAuthor}</a>
+            </li>
+          ))}
+        </ul>
+        <p><a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noreferrer">CC BY-SA 3.0</a>. Wikimedia Commons. Чёрно-белое отображение и кадрирование.</p>
+      </details>
 
       {/* ── 4. Нижняя строка ───────────────────────────────────────────── */}
       <span aria-hidden="true" className="mt-4 block h-px bg-white/[.07]" />
