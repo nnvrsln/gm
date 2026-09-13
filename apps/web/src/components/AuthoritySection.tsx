@@ -80,11 +80,6 @@ export function AuthoritySection() {
 }
 
 function Publication({ item }: { item: AuthorityQuote }) {
-  // Правка от 11.09.2026: заказчик оставил на карточке только то, что было
-  // набрано крупно и в кавычках, — первое предложение высказывания. Хвост
-  // (прежний .press-body мелким кеглем) со страницы снят. Полные тексты
-  // остаются в `data/authority.ts`: они источник, из них и режется цитата,
-  // и если заказчик захочет вернуть продолжение — возвращать неоткуда больше.
   const split = item.quote.search(/[.!?](?:\s|$)/) + 1
   const lead = split > 0 ? item.quote.slice(0, split) : item.quote
   const [firstName, ...surname] = item.name.split(' ')
@@ -96,10 +91,6 @@ function Publication({ item }: { item: AuthorityQuote }) {
           <p>{item.role}</p>
         </div>
         <div className="press-portrait">
-          {/* Кадрирование лежит в самих файлах: снимки заранее обрезаны по
-              пропорции плашки, головой по плечи. Прежний зум трансформом
-              (scale до 1.85) растягивал Дюкова выше исходника — 506px против
-              нужных 590 на плотном экране, — и срезал ему макушку. */}
           <img src={item.photo} alt={item.name} loading="lazy" width={212} height={296} />
         </div>
       </figcaption>

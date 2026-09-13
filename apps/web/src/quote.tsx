@@ -4,22 +4,6 @@ import coachCheer from './assets/coach-cheer.webp'
 import { QUOTE } from './data/quote'
 import './index.css'
 
-/**
- * Макетная страница: десять вариаций слайда 9 на вырезанном кадре.
- * http://localhost:5173/quote.html — в прод-сборку не попадает.
- *
- * Кадр теперь с альфой, и это меняет саму постановку задачи: фигуру больше
- * не нужно никуда «вписывать». Скилл ui-ux-pro-max на запрос про слои даёт
- * `dimensional-layering` — перекрытия, z-порядок, пространственная иерархия;
- * оттуда же `editorial-grid-magazine` (врезка, обтекание) и
- * `exaggerated-minimalism` (оверсайз-типографика, много воздуха). Десять
- * подач разводят эти направления по углам.
- *
- * Типографика везде одна — антиква Georgia на цитату, Bebas на имя, — чтобы
- * сравнивать композицию, а не шрифты. Исключение: 03 и 08, где типографика
- * и есть приём.
- */
-
 const BEBAS: CSSProperties = { fontFamily: '"Bebas Neue Cyrillic", "Bahnschrift", sans-serif' }
 const SERIF: CSSProperties = { fontFamily: 'Georgia, "Times New Roman", "Noto Serif", serif' }
 const HYPH = { hyphens: 'auto', WebkitHyphens: 'auto' } as CSSProperties
@@ -70,7 +54,6 @@ function Name() {
 
 const FIG = 'pointer-events-none absolute select-none max-w-none w-auto'
 
-/* 01. Перешагивает линию — линия FAQ закрывает список, фигура её пересекает. */
 function V01() {
   return (
     <div className="relative min-h-[470px]">
@@ -84,7 +67,6 @@ function V01() {
   )
 }
 
-/* 02. Текст поверх фигуры — цитата ложится на корпус, а не рядом. */
 function V02() {
   return (
     <div className="relative min-h-[480px]">
@@ -103,7 +85,6 @@ function V02() {
   )
 }
 
-/* 03. Bebas за спиной — фраза плакатом позади фигуры. */
 function V03() {
   return (
     <div className="relative min-h-[470px] overflow-hidden">
@@ -123,7 +104,6 @@ function V03() {
   )
 }
 
-/* 04. Круг света — фигура выходит за пределы диска сверху и снизу. */
 function V04() {
   return (
     <div className="relative min-h-[500px]">
@@ -144,7 +124,6 @@ function V04() {
   )
 }
 
-/* 05. Сцена — световая полоса-пол, на которой он стоит. */
 function V05() {
   return (
     <div className="relative min-h-[470px]">
@@ -164,7 +143,6 @@ function V05() {
   )
 }
 
-/* 06. Обтекание силуэта — текст течёт по контуру фигуры (shape-outside по альфе). */
 function V06() {
   return (
     <div className="relative min-h-[440px] px-5 py-10">
@@ -187,7 +165,6 @@ function V06() {
   )
 }
 
-/* 07. Крупный план — фигура увеличена и срезана верхом секции. */
 function V07() {
   return (
     <div className="relative min-h-[460px] overflow-hidden">
@@ -206,7 +183,6 @@ function V07() {
   )
 }
 
-/* 08. Минимализм — маленькая фигура, много воздуха, крупная цитата. */
 function V08() {
   return (
     <div className="relative min-h-[470px]">
@@ -227,7 +203,6 @@ function V08() {
   )
 }
 
-/* 09. Зеркально с вертикалью — фигура слева, цитата справа, между ними нить. */
 function V09() {
   return (
     <div className="relative min-h-[460px]">
@@ -245,7 +220,6 @@ function V09() {
   )
 }
 
-/* 10. Двойник — размытый силуэт позади и резкая фигура впереди. */
 function V10() {
   return (
     <div className="relative min-h-[480px] overflow-hidden">

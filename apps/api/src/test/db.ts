@@ -1,18 +1,3 @@
-/**
- * Подключение к тестовой базе.
- *
- * Это **настоящий** PostgreSQL, а не заглушка: проверять на подделке
- * идемпотентность и ограничения таблиц бессмысленно — ровно в различиях
- * между подделкой и живой базой ошибки и живут. Транзакции, `ON CONFLICT`
- * и `CHECK` должны быть теми же, что в проде.
- *
- * Схема накатывается той же миграцией, что и на рабочую базу: если
- * миграция сломана, тесты обязаны падать первыми.
- *
- * Файл намеренно не импортирует `config.ts` — тот проверяет `DATABASE_URL`
- * и завершает процесс, а тестам нужна другая строка подключения.
- */
-
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { migrate } from 'drizzle-orm/node-postgres/migrator'
 import { sql } from 'drizzle-orm'
@@ -43,11 +28,6 @@ export async function prepareDatabase() {
   await truncateAll()
 }
 
-/**
- * Чистим таблицы, а не пересоздаём схему: так между тестами уходят секунды,
- * а не минуты. `restart identity cascade` заодно снимает зависимости по
- * внешним ключам, которых из-за `restrict` иначе не обойти.
- */
 export async function truncateAll() {
   await testDb.execute(
     sql`truncate table payment_events, consents, payments, orders restart identity cascade`,

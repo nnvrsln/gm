@@ -3,15 +3,11 @@ import { cn } from '../lib/cn'
 
 type EyebrowProps = {
   children: ReactNode
-  /** Классы самого абзаца — отступы и размер шрифта задаёт секция. */
   className?: string
-  /** Классы декоративной черты слева. */
   lineClassName?: string
-  /** В новом макете надзаголовок идёт без черты — только капслок. */
   line?: boolean
 }
 
-/** Надзаголовок секции: короткая синяя черта + капслок. */
 export function Eyebrow({ children, className, lineClassName, line = true }: EyebrowProps) {
   return (
     <p

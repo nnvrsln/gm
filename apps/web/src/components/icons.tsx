@@ -2,7 +2,6 @@ import type { SVGProps } from 'react'
 
 type IconProps = SVGProps<SVGSVGElement>
 
-/** Значок «проверено» в бейдже героя. */
 export function VerifiedIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
@@ -38,7 +37,6 @@ export function ArrowRightIcon({ strokeWidth = 2.2, ...props }: IconProps) {
   )
 }
 
-/** Треугольник «play» на кнопке «Посмотреть программу». */
 export function PlayIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
@@ -47,11 +45,6 @@ export function PlayIcon(props: IconProps) {
   )
 }
 
-/* ── Иконки чипов героя ──────────────────────────────────────────────────
-   Один стиль на все четыре: контур 1.6, viewBox 24, без заливок — иначе
-   в квадратах 18px они читаются как разные наборы. */
-
-/** «Онлайн» — монитор. */
 export function MonitorIcon(props: IconProps) {
   return (
     <svg
@@ -70,7 +63,6 @@ export function MonitorIcon(props: IconProps) {
   )
 }
 
-/** «Практика» — тактическая доска. */
 export function TacticsIcon(props: IconProps) {
   return (
     <svg
@@ -90,7 +82,6 @@ export function TacticsIcon(props: IconProps) {
   )
 }
 
-/** «Авторский курс» — наградная медаль. */
 export function AwardIcon(props: IconProps) {
   return (
     <svg
@@ -109,7 +100,6 @@ export function AwardIcon(props: IconProps) {
   )
 }
 
-/** «Для тренеров» — свисток. */
 export function WhistleIcon(props: IconProps) {
   return (
     <svg
@@ -130,15 +120,6 @@ export function WhistleIcon(props: IconProps) {
   )
 }
 
-/* ── Иконки списка «О курсе» ─────────────────────────────────────────────
-   Tabler Icons (MIT, © 2020-2026 Paweł Kuna), https://tabler.io/icons —
-   геометрия контуров взята из набора без изменений. Библиотека не ставится
-   пакетом: нужны три иконки, а зависимость ради них потянула бы в бандл
-   несколько тысяч. Толщина обводки снижена с родных 2 до 1.6 — по общему
-   правилу иконок проекта (см. чипы героя выше), иначе набор распадается
-   на два разных. */
-
-/** «Актуальная методология» — разметка футбольного поля. */
 export function SoccerFieldIcon(props: IconProps) {
   return (
     <svg
@@ -160,7 +141,6 @@ export function SoccerFieldIcon(props: IconProps) {
   )
 }
 
-/** «Практика и реальные кейсы» — футбольный мяч. */
 export function FootballIcon(props: IconProps) {
   return (
     <svg
@@ -180,7 +160,6 @@ export function FootballIcon(props: IconProps) {
   )
 }
 
-/** «Системное развитие» — ступени роста. */
 export function GrowthIcon(props: IconProps) {
   return (
     <svg
@@ -286,15 +265,6 @@ export function WhatsAppIcon(props: IconProps) {
   )
 }
 
-/**
- * Звёздочка у тарифа «ХИТ» — прямое требование ТЗ слайда 6: «нужно выделить
- * цветом 2-ой тариф и добавить туда значок звездочки и слово: ХИТ».
- *
- * Заливкой, а не контуром, в отличие от иконок слайда 5: она стоит рядом со
- * словом «ХИТ» в размере 11–13px, и контур в 1.6 на такой величине
- * превращается в кляксу. По той же причине пятиконечная звезда нарисована
- * с чуть притупленными вершинами — острые на 12px рвутся сглаживанием.
- */
 export function StarIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
@@ -303,7 +273,6 @@ export function StarIcon(props: IconProps) {
   )
 }
 
-/** Мелкая галочка внутри кастомного чекбокса (viewBox 12×10). */
 export function CheckMarkIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 12 10" fill="none" aria-hidden="true" {...props}>
@@ -318,7 +287,6 @@ export function CheckMarkIcon(props: IconProps) {
   )
 }
 
-/** Крупная галочка на кнопке после успешной отправки. */
 export function CheckIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
@@ -351,21 +319,6 @@ export function HeartIcon(props: IconProps) {
   )
 }
 
-/* ── Иконки «Как проходит обучение» (слайд 5) ────────────────────────────
-   Одиннадцать фишек обучения, у каждой свой значок. Набор нарисован в общей
-   системе проекта: viewBox 24, обводка 1.6, скруглённые концы, без заливок —
-   те же параметры, что у чипов героя и у иконок Tabler выше, иначе на одной
-   странице читаются два разных набора.
-
-   Одиннадцатая иконка отдельно не заводится: «ПРАКТИКА» берёт готовый
-   SoccerFieldIcon — «переносить знания на поле» это ровно разметка поля.
-
-   Это временное решение по Q14: заказчик просил визуальный ряд («важно
-   визуально отразить то, о чём мы говорим»), и когда он придёт, контур в
-   плитке меняется на картинку — правка в одном компоненте FeatureTile.
-   NANOFOOTBALL и SCOUTWAY ждут своих логотипов отдельно (Q15). */
-
-/** «Онлайн-платформа» — монитор с треугольником записи. */
 export function PlatformIcon(props: IconProps) {
   return (
     <svg
@@ -385,7 +338,6 @@ export function PlatformIcon(props: IconProps) {
   )
 }
 
-/** «Обратная связь» — два облака реплик. */
 export function FeedbackIcon(props: IconProps) {
   return (
     <svg
@@ -404,7 +356,6 @@ export function FeedbackIcon(props: IconProps) {
   )
 }
 
-/** «Команда» — двое рядом, один чуть позади. */
 export function TeamIcon(props: IconProps) {
   return (
     <svg
@@ -425,7 +376,6 @@ export function TeamIcon(props: IconProps) {
   )
 }
 
-/** NANOFOOTBALL — конструктор: сетка блоков и плюс. */
 export function ConstructorIcon(props: IconProps) {
   return (
     <svg
@@ -446,7 +396,6 @@ export function ConstructorIcon(props: IconProps) {
   )
 }
 
-/** SCOUTWAY — поиск игрока: фигура в лупе. */
 export function ScoutIcon(props: IconProps) {
   return (
     <svg
@@ -467,7 +416,6 @@ export function ScoutIcon(props: IconProps) {
   )
 }
 
-/** «Разборы тренировок» — кадр с линией разбора. */
 export function ReviewIcon(props: IconProps) {
   return (
     <svg
@@ -487,7 +435,6 @@ export function ReviewIcon(props: IconProps) {
   )
 }
 
-/** «Сертификат» — лист с печатью и лентой. */
 export function CertificateIcon(props: IconProps) {
   return (
     <svg
@@ -508,7 +455,6 @@ export function CertificateIcon(props: IconProps) {
   )
 }
 
-/** «Тренерское портфолио» — папка-портфель. */
 export function PortfolioIcon(props: IconProps) {
   return (
     <svg
@@ -529,7 +475,6 @@ export function PortfolioIcon(props: IconProps) {
   )
 }
 
-/** «Закрытое тренерское сообщество» — облако реплики с замком. */
 export function LockedChatIcon(props: IconProps) {
   return (
     <svg
@@ -549,7 +494,6 @@ export function LockedChatIcon(props: IconProps) {
   )
 }
 
-/** Крестик закрытия — лист оплаты. Тот же вес штриха, что у CheckIcon. */
 export function CloseIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
@@ -563,7 +507,6 @@ export function CloseIcon(props: IconProps) {
   )
 }
 
-/** Конверт — поле e-mail в форме покупки. */
 export function MailIcon(props: IconProps) {
   return (
     <svg
@@ -582,11 +525,6 @@ export function MailIcon(props: IconProps) {
   )
 }
 
-/**
- * Бумажный самолётик Telegram. Контурный, как остальные значки полей, —
- * фирменный кружок с заливкой рядом с конвертом и трубкой читался бы
- * чужеродной наклейкой.
- */
 export function TelegramIcon(props: IconProps) {
   return (
     <svg
@@ -605,10 +543,6 @@ export function TelegramIcon(props: IconProps) {
   )
 }
 
-/**
- * Замок — строка доверия под способами оплаты. Дужка отдельным путём, а не
- * частью корпуса: на 14px слитый контур превращается в пятно.
- */
 export function LockIcon(props: IconProps) {
   return (
     <svg
@@ -627,22 +561,6 @@ export function LockIcon(props: IconProps) {
   )
 }
 
-/* ── Значки способов оплаты ──────────────────────────────────────────────
-   Три значка ниже взяты из набора Lucide (lucide.dev, лицензия ISC) и
-   вставлены путями, а не пакетом: нужны ровно три штуки, а зависимость
-   ради них тянула бы в проект весь набор.
-
-   Это не вкусовщина, а замена: до 02.09 здесь стояли рисованные от руки
-   глифы, и рукопожатие на 18px слипалось в пятно, похожее на очки.
-   Lucide нарисован на сетке 24 с обводкой 2 — на мелком кегле он держит
-   форму. Обводка оставлена авторская (2 вместо проектных 1.6): на 20px
-   более тонкая линия у этих контуров бледнеет рядом с цветным знаком СБП,
-   стоящим в том же столбце.
-
-   Знак СБП сюда не входит: это чужой товарный знак, он лежит файлом
-   `assets/sbp.svg` — см. разбор у `PayMethods` в `PaySheet.tsx`. */
-
-/** Карта — «оплата любой картой РФ». Lucide `credit-card`. */
 export function CardIcon(props: IconProps) {
   return (
     <svg
@@ -661,14 +579,6 @@ export function CardIcon(props: IconProps) {
   )
 }
 
-/**
- * Здание банка — «банковская рассрочка». Lucide `landmark`.
- *
- * Взято здание, а не календарь: календарь говорит «платёж во времени», это
- * верно для обеих рассрочек сразу, а различает их именно слово
- * «банковская». Заодно силуэт не повторяет прямоугольник карты строкой
- * выше.
- */
 export function InstallmentIcon(props: IconProps) {
   return (
     <svg
@@ -691,15 +601,6 @@ export function InstallmentIcon(props: IconProps) {
   )
 }
 
-/**
- * Рукопожатие — «исламская рассрочка». Lucide `handshake`.
- *
- * Полумесяца здесь намеренно нет: религиозный символ на строке платёжного
- * инструмента подменяет предмет — речь про порядок расчётов, а не про
- * вероисповедание покупателя. Рукопожатие говорит про договорённость, а
- * договорённость и есть то, чем эта строка отличается от трёх соседних:
- * её оформляют не нажатием, а через менеджера.
- */
 export function ManagerIcon(props: IconProps) {
   return (
     <svg
@@ -721,11 +622,6 @@ export function ManagerIcon(props: IconProps) {
   )
 }
 
-/**
- * Кавычка «Авторитета» (слайд 7) — классический двойной штрих газетной
- * цитаты, залитый, а не обводкой: рядом с мелким текстом карточки тонкий
- * контур на 28px терялся бы, а плашка читается сразу.
- */
 export function QuoteIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>

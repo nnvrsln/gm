@@ -1,19 +1,8 @@
-// Перегоняет PNG из src/assets в WebP. Исходные снимки приходят от заказчика
-// по 1.5–2.8 МБ, а макет мобильный — три кадра секции «Для кого» тянули
-// около 5 МБ трафика. Скрипт разовый, не часть сборки: гоняем руками, когда
-// заказчик приносит новые ассеты, и коммитим результат.
-//
-//   node scripts/to-webp.mjs            # все PNG из src/assets
-//   node scripts/to-webp.mjs a.png b.png
-//
-// Исходные PNG не удаляет — решение об удалении за владельцем.
 import { readdir, stat } from 'node:fs/promises'
 import path from 'node:path'
 import sharp from 'sharp'
 
 const ASSETS = path.resolve(import.meta.dirname, '../src/assets')
-// 82 — потолок, за которым на этих снимках уже не видно разницы даже при
-// сравнении в упор, а вес растёт вдвое.
 const QUALITY = 82
 
 const kb = (bytes) => `${(bytes / 1024).toFixed(0)} КБ`

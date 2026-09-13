@@ -14,12 +14,6 @@ export type PhoneMask = {
   }
 }
 
-/**
- * Контролируемое поле телефона с маской. Каретку приходится расставлять руками:
- * после форматирования React возвращает её в конец строки, поэтому нужную
- * позицию складываем в ref и применяем в useLayoutEffect — до отрисовки кадра,
- * иначе курсор заметно прыгает.
- */
 export function usePhoneMask(): PhoneMask {
   const ref = useRef<HTMLInputElement>(null)
   const [value, setValue] = useState('')
@@ -32,7 +26,6 @@ export function usePhoneMask(): PhoneMask {
     caret.current = null
   })
 
-  /** Отформатировать raw и поставить каретку после nat-й национальной цифры. */
   const commit = useCallback((raw: string, nat: number) => {
     const next = applyPhoneMask(raw)
     caret.current = caretAfterDigit(next, nat)
@@ -63,13 +56,11 @@ export function usePhoneMask(): PhoneMask {
       if (el.selectionStart !== el.selectionEnd) return
       const pos = el.selectionStart ?? 0
 
-      // Backspace: удаляет ближайшую цифру слева, проходя сквозь разделители.
       if (e.key === 'Backspace') {
         e.preventDefault()
         let i = pos - 1
         while (i >= 2 && !/\d/.test(el.value[i])) i--
         if (i < 2) {
-          // дошли до префикса +7 — очищаем поле целиком
           caret.current = null
           setValue('')
           return
@@ -78,7 +69,6 @@ export function usePhoneMask(): PhoneMask {
         return
       }
 
-      // Delete: удаляет ближайшую цифру справа.
       if (e.key === 'Delete') {
         e.preventDefault()
         let i = pos

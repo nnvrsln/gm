@@ -1,16 +1,3 @@
-/**
- * Проверка живости.
- *
- * Отвечает 200 только если жива **и** база: сервер, который отвечает «всё
- * хорошо» с отвалившимся Postgres, бесполезен — именно в этом состоянии
- * оплаты проходят у платёжки, а заказы у нас не отмечаются.
- *
- * По этому же адресу ходит healthcheck контейнера и внешняя пинговалка.
- * Отдельно от него нужно мониторить адрес вебхука Prodamus
- * (`docs/tz/06-BACKEND.md`): живой `/health` ещё не значит, что вебхук
- * принимается.
- */
-
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
@@ -26,7 +13,7 @@ export async function healthRoutes(app: FastifyInstance) {
     '/health',
     {
       schema: { response: { 200: reply, 503: reply } },
-      logLevel: 'warn', // иначе пинговалка забивает журнал строкой раз в минуту
+      logLevel: 'warn',
     },
     async (_request, response) => {
       try {

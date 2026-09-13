@@ -1,9 +1,3 @@
-/**
- * Проверки против живого PostgreSQL: то, что нельзя доказать чистыми
- * функциями. Здесь проверяется поведение, за которое отвечает база —
- * транзакция, уникальный индекс, ограничения на суммы.
- */
-
 import { RESERVE_AMOUNT, TARIFF_PRICES } from '@gm/shared'
 import { eq, sql } from 'drizzle-orm'
 import { afterAll, beforeEach, describe, expect, it } from 'vitest'
@@ -14,12 +8,6 @@ import type { CreateOrderBody } from './schema'
 
 const meta = { ip: '203.0.113.10', userAgent: 'Mozilla/5.0 (тест)' }
 
-/**
- * Имя сработавшего ограничения. Drizzle заворачивает ошибку драйвера, и в
- * тексте остаётся только «Failed query»; имя лежит в `cause.constraint` —
- * это поле ответа самого Postgres. Проверять по нему точнее, чем по
- * подстроке: видно, что упало именно нужное ограничение, а не соседнее.
- */
 async function violatedConstraint(run: () => Promise<unknown>) {
   try {
     await run()
@@ -60,7 +48,6 @@ describe('создание заказа', () => {
     expect(written).toHaveLength(1)
     expect(written[0]?.kind).toBe('pd')
     expect(written[0]?.textVersion).toBe('1.0')
-    // Адрес и клиент нужны как доказательство факта согласия по 152-ФЗ.
     expect(written[0]?.ip).toBe(meta.ip)
     expect(written[0]?.userAgent).toBe(meta.userAgent)
   })
@@ -125,9 +112,6 @@ describe('идемпотентность', () => {
   it('одновременные запросы с одним ключом дают один заказ', async () => {
     const payload = body()
 
-    // Настоящая гонка: пять параллельных соединений из пула. Это то, ради
-    // чего идемпотентность сделана уникальным индексом, а не проверкой
-    // «есть ли уже такой» перед вставкой.
     const results = await Promise.all(
       Array.from({ length: 5 }, () => createOrder(testDb, payload, meta)),
     )
